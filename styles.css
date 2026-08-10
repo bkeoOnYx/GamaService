@@ -1020,6 +1020,11 @@ em {
     width: 100%;
   }
 
+  .plugin-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .trust-row {
     display: grid;
     gap: 10px;
