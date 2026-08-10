@@ -523,12 +523,12 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
     <meta name="referrer" content="no-referrer" />
     <meta name="theme-color" content="#050713" />
     <link rel="icon" type="image/png" href="../assets/favicon.png" />
-    <link rel="stylesheet" href="admin.css?v=20260810-3" />
+    <link rel="stylesheet" href="admin.css?v=20260810-4" />
     <title>Administration | GamaService</title>
   </head>
   <body>
     <header class="admin-header">
-      <a class="admin-brand" href="../index.html"><img src="../assets/logo-gamaservice.webp" alt="" width="36" height="36" /><span>GamaService</span></a>
+      <a class="admin-brand" href="/"><img src="../assets/logo-gamaservice.webp" alt="" width="36" height="36" /><span>GamaService</span></a>
       <?php if ($authenticated): ?>
         <form method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="logout" /><button class="secondary-button" type="submit">Se déconnecter</button></form>
       <?php endif; ?>

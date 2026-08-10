@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://gamaservice.fr/</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://gamaservice.fr/minecraft.html</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://gamaservice.fr/garrys-mod.html</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://gamaservice.fr/sites-web.html</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://gamaservice.fr/graphisme.html</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://gamaservice.fr/avis.html</loc><lastmod>2026-08-10</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gamaservice.fr/minecraft</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://gamaservice.fr/garrys-mod</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gamaservice.fr/sites-web</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gamaservice.fr/graphisme</loc><lastmod>2026-08-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gamaservice.fr/avis</loc><lastmod>2026-08-10</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
 </urlset>

@@ -21,6 +21,16 @@ RewriteCond %{HTTPS} !=on
 RewriteCond %{HTTP_HOST} ^gamaservice\.fr$ [NC]
 RewriteRule ^ https://gamaservice.fr%{REQUEST_URI} [R=301,L]
 
+# Keep public page URLs readable and canonical.
+RewriteCond %{THE_REQUEST} \s/+index\.html(?:\?|\s) [NC]
+RewriteRule ^index\.html$ / [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+(?:minecraft|garrys-mod|sites-web|graphisme|avis)\.html(?:\?|\s) [NC]
+RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis)\.html$ /$1 [R=301,L,NE]
+
+RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis)/$ /$1 [R=301,L]
+RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis)$ $1.html [L]
+
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json image/svg+xml
 </IfModule>
@@ -48,7 +58,7 @@ RewriteRule ^ https://gamaservice.fr%{REQUEST_URI} [R=301,L]
   Header always set Cross-Origin-Opener-Policy "same-origin"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
-  Header set Cache-Control "no-cache, must-revalidate" "expr=%{REQUEST_URI} =~ m#^/index\.html$#"
+  Header set Cache-Control "no-cache, must-revalidate" "expr=%{REQUEST_URI} =~ m#^/(?:index\.html)?$#"
 </IfModule>
 
 ErrorDocument 404 /404.html

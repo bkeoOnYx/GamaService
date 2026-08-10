@@ -26,7 +26,7 @@ a { color: inherit; text-decoration: none; }
 :focus-visible { outline: 3px solid rgba(79, 140, 255, 0.7); outline-offset: 2px; }
 .admin-header { position: sticky; z-index: 10; top: 0; display: flex; min-height: 68px; align-items: center; justify-content: space-between; gap: 20px; padding: 0 max(24px, calc((100% - 1120px) / 2)); border-bottom: 1px solid var(--line); background: rgba(5, 7, 19, 0.96); backdrop-filter: blur(14px); }
 .admin-brand { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 800; }
-.admin-brand img { width: 36px; height: 36px; }
+.admin-brand img { width: 36px; height: 36px; -webkit-mask-image: radial-gradient(circle at center, #000 48%, rgba(0, 0, 0, 0.88) 72%, transparent 100%); mask-image: radial-gradient(circle at center, #000 48%, rgba(0, 0, 0, 0.88) 72%, transparent 100%); mix-blend-mode: screen; }
 .admin-shell { width: min(calc(100% - 40px), 1120px); margin: 0 auto; padding: 64px 0 100px; }
 .admin-eyebrow { margin: 0 0 10px; color: #a98bff; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 h1, h2, h3 { margin-top: 0; line-height: 1.12; letter-spacing: 0; }
@@ -62,7 +62,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--blue); box-shado
 .check { display: flex; min-height: 44px; align-items: center; gap: 9px; }
 .check input { width: 18px; min-height: 18px; }
 .primary-button, .secondary-button, .danger-button, .text-button { display: inline-flex; min-height: 42px; width: fit-content; align-items: center; justify-content: center; padding: 0 15px; border: 1px solid transparent; border-radius: 5px; cursor: pointer; color: #fff; font-size: 0.7rem; font-weight: 800; }
-.primary-button { background: var(--blue); }
+.primary-button { border-color: rgba(169, 139, 255, 0.5); background: rgba(138, 92, 246, 0.12); }
 .secondary-button { border-color: var(--line); background: transparent; }
 .danger-button { min-height: 36px; border-color: rgba(255, 110, 122, 0.4); background: transparent; color: #ff9da5; }
 .text-button { min-height: 34px; padding: 0; background: transparent; color: #9bb9f7; }
