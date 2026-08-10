@@ -97,7 +97,7 @@ function gs_read_content(): array
 
     return [
         'contact' => is_array($content['contact'] ?? null) ? $content['contact'] : $default['contact'],
-        'examples' => is_array($content['examples'] ?? null) ? array_values($content['examples']) : $default['examples'],
+        'plugins' => is_array($content['plugins'] ?? null) ? array_values($content['plugins']) : $default['plugins'],
         'reviews' => is_array($content['reviews'] ?? null) ? array_values($content['reviews']) : [],
     ];
 }
@@ -106,25 +106,25 @@ function gs_write_content(array $content): void
 {
     gs_write_json_file(gs_content_path(), [
         'contact' => $content['contact'],
-        'examples' => array_values($content['examples']),
+        'plugins' => array_values($content['plugins']),
         'reviews' => array_values($content['reviews']),
     ]);
 }
 
 function gs_public_content(array $content): array
 {
-    $examples = array_values(array_filter(
-        $content['examples'],
-        static fn (array $example): bool => ($example['published'] ?? false) === true
+    $plugins = array_values(array_filter(
+        $content['plugins'],
+        static fn (mixed $plugin): bool => is_array($plugin) && ($plugin['published'] ?? false) === true
     ));
     $reviews = array_values(array_filter(
         $content['reviews'],
-        static fn (array $review): bool => ($review['published'] ?? false) === true
+        static fn (mixed $review): bool => is_array($review) && ($review['published'] ?? false) === true
     ));
 
     return [
         'contact' => ['email' => (string) ($content['contact']['email'] ?? 'support.gamaservice@gmail.com')],
-        'examples' => $examples,
+        'plugins' => $plugins,
         'reviews' => $reviews,
     ];
 }
@@ -147,7 +147,7 @@ function gs_image_path(mixed $value): string
         return $path;
     }
 
-    return 'assets/logo-gamaservice.webp';
+    return '';
 }
 
 function gs_new_id(string $prefix): string

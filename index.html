@@ -3,19 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="GamaService accompagne vos projets Minecraft, Garry's Mod, sites web et identités graphiques avec des solutions sur mesure." />
+    <meta name="description" content="GamaService développe des plugins Minecraft sur mesure et accompagne vos projets Garry's Mod, sites web et identités graphiques." />
     <meta name="robots" content="index,follow,max-image-preview:large" />
-    <meta name="theme-color" content="#060912" />
+    <meta name="theme-color" content="#050713" />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="GamaService" />
     <meta property="og:title" content="GamaService | Studio gaming, web et graphisme" />
-    <meta property="og:description" content="Des solutions sur mesure pour Minecraft, Garry's Mod, le web et votre identité visuelle." />
+    <meta property="og:description" content="Plugins Minecraft sur mesure, serveurs Garry's Mod, sites web et identité visuelle." />
     <meta property="og:url" content="https://gamaservice.fr/" />
     <meta property="og:image" content="https://gamaservice.fr/assets/logo-gamaservice-og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="https://gamaservice.fr/" />
     <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="preload" href="assets/fonts/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/logo-gamaservice.webp" as="image" type="image/webp" fetchpriority="high" />
     <link rel="stylesheet" href="styles.css" />
     <title>GamaService | Studio gaming, web et graphisme</title>
   </head>
@@ -41,19 +43,20 @@
 
     <main id="main">
       <section class="hero">
-        <div class="container">
+        <div class="container hero-layout">
           <div class="hero-copy reveal">
-            <p class="eyebrow">Studio digital & gaming</p>
-            <h1>Studio Minecraft, Garry's Mod, web & <em>graphisme.</em></h1>
-            <p class="hero-lead">GamaService conçoit des expériences solides, cohérentes et faites pour durer, du serveur de jeu à l'identité visuelle qui le rend reconnaissable.</p>
+            <p class="eyebrow">Studio digital &amp; gaming</p>
+            <h1>GamaService, studio digital &amp; <em>gaming.</em></h1>
+            <p class="hero-lead">Plugins Minecraft sur mesure, configuration de serveurs, création web et identité visuelle : une expertise technique et créative réunie autour de votre projet.</p>
             <div class="hero-actions">
               <a class="button button-primary" href="#contact">Présenter mon projet</a>
-              <a class="button button-secondary" href="minecraft.html">Voir les exemples Minecraft</a>
+              <a class="button button-secondary" href="minecraft.html#plugins">Voir les plugins Minecraft</a>
             </div>
             <ul class="trust-row" aria-label="Engagements GamaService">
               <li>Sur mesure</li><li>Suivi clair</li><li>Livraison documentée</li>
             </ul>
           </div>
+          <div class="hero-mark" aria-hidden="true"><img src="assets/logo-gamaservice.webp" alt="" width="640" height="640" fetchpriority="high" /></div>
         </div>
       </section>
 
@@ -64,7 +67,7 @@
             <p>Chaque prestation peut vivre seule ou s'intégrer dans un projet complet, avec un interlocuteur unique.</p>
           </div>
           <div class="services-grid">
-            <article class="service-card reveal"><span class="service-index">01 / MINECRAFT</span><h3>Serveurs Minecraft</h3><p>Builds, configuration, plugins et parcours joueur pensés autour de votre concept.</p><a href="minecraft.html">Découvrir Minecraft</a></article>
+            <article class="service-card reveal"><span class="service-index">01 / MINECRAFT</span><h3>Plugins &amp; serveurs Minecraft</h3><p>Développement de plugins, configuration, intégration et optimisation selon votre concept.</p><a href="minecraft.html">Découvrir Minecraft</a></article>
             <article class="service-card reveal"><span class="service-index">02 / GARRY'S MOD</span><h3>Serveurs Garry's Mod</h3><p>Installation, configuration et optimisation pour une base propre et stable.</p><a href="garrys-mod.html">Découvrir Garry's Mod</a></article>
             <article class="service-card reveal"><span class="service-index">03 / WEB</span><h3>Sites internet</h3><p>Des sites rapides et adaptés à tous les écrans pour présenter et convertir.</p><a href="sites-web.html">Découvrir le web</a></article>
             <article class="service-card reveal"><span class="service-index">04 / DESIGN</span><h3>Graphisme</h3><p>Logo, identité et supports visuels pour donner un visage fort à votre projet.</p><a href="graphisme.html">Découvrir le graphisme</a></article>
@@ -72,16 +75,14 @@
         </div>
       </section>
 
-      <section class="section band" aria-labelledby="examples-title">
+      <section class="section band" aria-labelledby="plugins-title">
         <div class="container">
           <div class="section-heading reveal">
-            <div><p class="eyebrow">Aperçu Minecraft</p><h2 id="examples-title">Des univers pensés pour <em>être joués.</em></h2></div>
-            <p>Ces premières images sont des concepts de démonstration. Elles montrent des directions possibles, pas des commandes clients déjà livrées.</p>
+            <div><p class="eyebrow">Portfolio Minecraft</p><h2 id="plugins-title">Des plugins conçus pour des <em>besoins réels.</em></h2></div>
+            <p>Chaque fiche présente le rôle et les fonctionnalités du plugin. Les fichiers et le code source restent privés.</p>
           </div>
-          <div class="example-grid" data-example-grid aria-live="polite">
-            <article class="example-card"><img src="assets/examples/spawn-medieval.webp" alt="Concept voxel d’un spawn Minecraft médiéval avec grande porte fortifiée" width="1586" height="992" loading="lazy" /><div class="example-body"><p class="example-kicker">Concept de démonstration</p><h3>Spawn médiéval communautaire</h3><p>Une place centrale lisible, des zones d’accueil et une architecture pensée pour guider les nouveaux joueurs dès leur arrivée.</p><ul class="tag-list"><li>Build</li><li>Spawn</li><li>Orientation</li><li>Sur mesure</li></ul></div></article>
-            <article class="example-card"><img src="assets/examples/hub-futuriste.webp" alt="Concept voxel d’un hub Minecraft futuriste éclairé en bleu et violet" width="1587" height="991" loading="lazy" /><div class="example-body"><p class="example-kicker">Concept de démonstration</p><h3>Hub futuriste multi-modes</h3><p>Un hub structuré autour de portails et de parcours courts, conçu pour relier clairement plusieurs modes de jeu.</p><ul class="tag-list"><li>Hub</li><li>Portails</li><li>Multi-modes</li><li>Direction artistique</li></ul></div></article>
-            <article class="example-card"><img src="assets/examples/village-survie.webp" alt="Concept voxel d’un village Minecraft avec marché, cultures et rivière" width="1586" height="992" loading="lazy" /><div class="example-body"><p class="example-kicker">Concept de démonstration</p><h3>Village survie & économie</h3><p>Une zone marchande chaleureuse qui rassemble boutiques, ressources et lieux de rencontre sans perdre l’esprit survie.</p><ul class="tag-list"><li>Survie</li><li>Économie</li><li>Village</li><li>Expérience joueur</li></ul></div></article>
+          <div class="plugin-grid" data-plugin-grid aria-live="polite">
+            <div class="empty-state plugin-empty"><p class="example-kicker">Portfolio en préparation</p><h3>Les premières fiches de plugins arrivent bientôt.</h3><p>Vous pouvez déjà nous présenter le plugin personnalisé dont votre serveur a besoin.</p><a class="button button-secondary" href="mailto:support.gamaservice@gmail.com?subject=Demande%20de%20plugin%20Minecraft%20personnalis%C3%A9">Demander un plugin personnalisé</a></div>
           </div>
         </div>
       </section>

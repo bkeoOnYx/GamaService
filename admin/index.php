@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/content-store.php';
 
 const GS_ADMIN_EMAIL = 'support.gamaservice@gmail.com';
+const GS_ADMIN_USERNAME = 'admin';
 const GS_ADMIN_URL = 'https://gamaservice.fr/admin/';
 
 header('X-Robots-Tag: noindex, nofollow, noarchive');
@@ -54,9 +55,14 @@ function admin_redirect(string $anchor = ''): never
     exit;
 }
 
-function admin_auth_path(): string
+function admin_credentials_path(): string
 {
-    return gs_storage_dir() . DIRECTORY_SEPARATOR . 'admin-auth.json';
+    return gs_storage_dir() . DIRECTORY_SEPARATOR . 'admin-credentials.json';
+}
+
+function admin_token_path(): string
+{
+    return gs_storage_dir() . DIRECTORY_SEPARATOR . 'admin-password-token.json';
 }
 
 function admin_rate_path(): string
@@ -64,61 +70,141 @@ function admin_rate_path(): string
     return gs_storage_dir() . DIRECTORY_SEPARATOR . 'admin-rate.json';
 }
 
-function admin_rate_allowed(): bool
+function admin_credentials(): array
+{
+    return gs_read_json_file(admin_credentials_path(), []);
+}
+
+function admin_password_configured(): bool
+{
+    $credentials = admin_credentials();
+    return ($credentials['username'] ?? '') === GS_ADMIN_USERNAME
+        && is_string($credentials['password_hash'] ?? null)
+        && $credentials['password_hash'] !== '';
+}
+
+function admin_validate_password(string $password, string $confirmation): void
+{
+    $length = function_exists('mb_strlen') ? mb_strlen($password) : strlen($password);
+    if ($length < 12 || $length > 200) {
+        throw new RuntimeException('Le mot de passe doit contenir entre 12 et 200 caractères.');
+    }
+    if (!hash_equals($password, $confirmation)) {
+        throw new RuntimeException('Les deux mots de passe ne correspondent pas.');
+    }
+}
+
+function admin_save_password(string $password): void
+{
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    if (!is_string($hash) || $hash === '') {
+        throw new RuntimeException('Le mot de passe n’a pas pu être sécurisé.');
+    }
+
+    gs_write_json_file(admin_credentials_path(), [
+        'username' => GS_ADMIN_USERNAME,
+        'password_hash' => $hash,
+        'updated_at' => time(),
+    ]);
+}
+
+function admin_rate_allowed(string $bucket, int $limit, int $window): bool
 {
     $now = time();
-    $ipKey = hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
-    $data = gs_read_json_file(admin_rate_path(), ['requests' => []]);
-    $requests = is_array($data['requests'] ?? null) ? $data['requests'] : [];
+    $ip = hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+    $key = $bucket . ':' . $ip;
+    $data = gs_read_json_file(admin_rate_path(), ['buckets' => []]);
+    $buckets = is_array($data['buckets'] ?? null) ? $data['buckets'] : [];
 
-    foreach ($requests as $key => $timestamps) {
+    foreach ($buckets as $storedKey => $timestamps) {
         if (!is_array($timestamps)) {
-            unset($requests[$key]);
+            unset($buckets[$storedKey]);
             continue;
         }
-        $requests[$key] = array_values(array_filter(
+        $buckets[$storedKey] = array_values(array_filter(
             $timestamps,
             static fn (mixed $timestamp): bool => is_int($timestamp) && $timestamp > $now - 3600
         ));
-        if ($requests[$key] === []) {
-            unset($requests[$key]);
+        if ($buckets[$storedKey] === []) {
+            unset($buckets[$storedKey]);
         }
     }
 
-    $recentForIp = array_filter(
-        $requests[$ipKey] ?? [],
-        static fn (int $timestamp): bool => $timestamp > $now - 900
-    );
-    $globalCount = array_sum(array_map('count', $requests));
-    if (count($recentForIp) >= 3 || $globalCount >= 12) {
+    $recent = array_values(array_filter(
+        $buckets[$key] ?? [],
+        static fn (int $timestamp): bool => $timestamp > $now - $window
+    ));
+    if (count($recent) >= $limit) {
         return false;
     }
 
-    $requests[$ipKey][] = $now;
-    gs_write_json_file(admin_rate_path(), ['requests' => $requests]);
+    $buckets[$key][] = $now;
+    gs_write_json_file(admin_rate_path(), ['buckets' => $buckets]);
     return true;
 }
 
-function admin_send_login_link(): void
+function admin_clear_rate(string $bucket): void
 {
-    if (!admin_rate_allowed()) {
-        throw new RuntimeException('Trop de demandes. Réessayez dans quelques minutes.');
+    $ip = hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+    $key = $bucket . ':' . $ip;
+    $data = gs_read_json_file(admin_rate_path(), ['buckets' => []]);
+    $buckets = is_array($data['buckets'] ?? null) ? $data['buckets'] : [];
+    unset($buckets[$key]);
+    gs_write_json_file(admin_rate_path(), ['buckets' => $buckets]);
+}
+
+function admin_authenticate(): void
+{
+    session_regenerate_id(true);
+    $_SESSION['admin_authenticated'] = true;
+    $_SESSION['admin_last_activity'] = time();
+    $_SESSION['csrf'] = bin2hex(random_bytes(32));
+}
+
+function admin_login(string $username, string $password): bool
+{
+    if (!admin_rate_allowed('login', 6, 900)) {
+        throw new RuntimeException('Trop de tentatives. Réessayez dans 15 minutes.');
     }
 
+    $credentials = admin_credentials();
+    $hash = (string) ($credentials['password_hash'] ?? '');
+    $validUsername = hash_equals(GS_ADMIN_USERNAME, $username);
+    if (!$validUsername || $hash === '' || !password_verify($password, $hash)) {
+        return false;
+    }
+
+    if (password_needs_rehash($hash, PASSWORD_DEFAULT)) {
+        admin_save_password($password);
+    }
+    admin_clear_rate('login');
+    admin_authenticate();
+    return true;
+}
+
+function admin_send_password_link(): void
+{
+    if (!admin_rate_allowed('password-email', 3, 3600)) {
+        throw new RuntimeException('Trop de demandes. Réessayez dans une heure.');
+    }
+
+    $purpose = admin_password_configured() ? 'reset' : 'setup';
     $token = bin2hex(random_bytes(32));
-    gs_write_json_file(admin_auth_path(), [
+    gs_write_json_file(admin_token_path(), [
         'token_hash' => hash('sha256', $token),
+        'purpose' => $purpose,
         'expires_at' => time() + 900,
     ]);
 
     $link = GS_ADMIN_URL . '?token=' . $token;
-    $subject = 'Connexion à l’administration GamaService';
+    $verb = $purpose === 'setup' ? 'Initialisation' : 'Réinitialisation';
+    $subject = $verb . ' du mot de passe GamaService';
     if (function_exists('mb_encode_mimeheader')) {
         $subject = mb_encode_mimeheader($subject, 'UTF-8');
     }
-    $message = "Bonjour,\n\nVoici votre lien de connexion à l’administration GamaService :\n\n"
+    $message = "Bonjour,\n\nUtilisez ce lien pour définir le mot de passe du compte admin GamaService :\n\n"
         . $link
-        . "\n\nCe lien est valable 15 minutes et ne peut être utilisé qu’une fois.\n";
+        . "\n\nCe lien est valable 15 minutes et ne peut être utilisé qu’une fois. Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.\n";
     $headers = [
         'From: GamaService <no-reply@gamaservice.fr>',
         'Reply-To: ' . GS_ADMIN_EMAIL,
@@ -127,29 +213,36 @@ function admin_send_login_link(): void
     ];
 
     if (!@mail(GS_ADMIN_EMAIL, $subject, $message, implode("\r\n", $headers))) {
-        throw new RuntimeException('Le serveur n’a pas pu envoyer le lien. Vérifiez la fonction e-mail OVH.');
+        throw new RuntimeException('Le serveur n’a pas pu envoyer l’e-mail de sécurité.');
     }
 }
 
-function admin_consume_token(string $token): bool
+function admin_valid_token(string $token): ?array
 {
     if (preg_match('/^[a-f0-9]{64}$/', $token) !== 1) {
-        return false;
+        return null;
     }
 
-    $auth = gs_read_json_file(admin_auth_path(), []);
-    $expected = (string) ($auth['token_hash'] ?? '');
-    $expiresAt = (int) ($auth['expires_at'] ?? 0);
-    if ($expected === '' || $expiresAt < time() || !hash_equals($expected, hash('sha256', $token))) {
-        return false;
+    $data = gs_read_json_file(admin_token_path(), []);
+    $expected = (string) ($data['token_hash'] ?? '');
+    if ($expected === '' || (int) ($data['expires_at'] ?? 0) < time()) {
+        return null;
     }
+    if (!hash_equals($expected, hash('sha256', $token))) {
+        return null;
+    }
+    return $data;
+}
 
-    gs_write_json_file(admin_auth_path(), ['token_hash' => '', 'expires_at' => 0]);
-    session_regenerate_id(true);
-    $_SESSION['admin_authenticated'] = true;
-    $_SESSION['admin_last_activity'] = time();
-    $_SESSION['csrf'] = bin2hex(random_bytes(32));
-    return true;
+function admin_consume_password_token(string $token, string $password, string $confirmation): void
+{
+    if (admin_valid_token($token) === null) {
+        throw new RuntimeException('Ce lien est invalide ou a expiré.');
+    }
+    admin_validate_password($password, $confirmation);
+    admin_save_password($password);
+    gs_write_json_file(admin_token_path(), ['token_hash' => '', 'purpose' => '', 'expires_at' => 0]);
+    admin_authenticate();
 }
 
 function admin_upload_image(string $field): ?string
@@ -158,8 +251,8 @@ function admin_upload_image(string $field): ?string
     if (!is_array($upload) || (int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
         return null;
     }
-    if ((int) $upload['error'] !== UPLOAD_ERR_OK || (int) $upload['size'] > 5 * 1024 * 1024) {
-        throw new RuntimeException('L’image doit peser au maximum 5 Mo.');
+    if ((int) $upload['error'] !== UPLOAD_ERR_OK || (int) ($upload['size'] ?? 0) > 2 * 1024 * 1024) {
+        throw new RuntimeException('La capture doit peser au maximum 2 Mo.');
     }
 
     $temporary = (string) $upload['tmp_name'];
@@ -170,19 +263,48 @@ function admin_upload_image(string $field): ?string
     }
 
     $dimensions = @getimagesize($temporary);
-    if (!is_array($dimensions) || $dimensions[0] > 6000 || $dimensions[1] > 6000) {
-        throw new RuntimeException('Les dimensions de l’image sont invalides ou trop grandes.');
+    if (!is_array($dimensions) || $dimensions[0] < 1 || $dimensions[1] < 1 || $dimensions[0] > 5000 || $dimensions[1] > 5000) {
+        throw new RuntimeException('Les dimensions de la capture sont invalides ou trop grandes.');
     }
 
-    $uploadsDirectory = gs_storage_dir() . DIRECTORY_SEPARATOR . 'uploads';
-    if (!is_dir($uploadsDirectory) && !mkdir($uploadsDirectory, 0700, true) && !is_dir($uploadsDirectory)) {
-        throw new RuntimeException('Impossible de préparer le dossier d’images.');
+    $directory = gs_storage_dir() . DIRECTORY_SEPARATOR . 'uploads';
+    if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) {
+        throw new RuntimeException('Impossible de préparer le dossier des captures.');
+    }
+
+    $sourceFunctions = [
+        'image/jpeg' => 'imagecreatefromjpeg',
+        'image/png' => 'imagecreatefrompng',
+        'image/webp' => 'imagecreatefromwebp',
+    ];
+    $sourceFunction = $sourceFunctions[$mime];
+    if (function_exists($sourceFunction) && function_exists('imagewebp')) {
+        $source = @$sourceFunction($temporary);
+        if ($source !== false) {
+            $ratio = min(1, 1600 / $dimensions[0], 1200 / $dimensions[1]);
+            $width = max(1, (int) round($dimensions[0] * $ratio));
+            $height = max(1, (int) round($dimensions[1] * $ratio));
+            $canvas = imagecreatetruecolor($width, $height);
+            imagealphablending($canvas, false);
+            imagesavealpha($canvas, true);
+            imagecopyresampled($canvas, $source, 0, 0, 0, 0, $width, $height, $dimensions[0], $dimensions[1]);
+            $filename = bin2hex(random_bytes(16)) . '.webp';
+            $destination = $directory . DIRECTORY_SEPARATOR . $filename;
+            $saved = imagewebp($canvas, $destination, 82);
+            imagedestroy($canvas);
+            imagedestroy($source);
+            if (!$saved) {
+                throw new RuntimeException('La capture n’a pas pu être optimisée.');
+            }
+            chmod($destination, 0600);
+            return 'media.php?file=' . $filename;
+        }
     }
 
     $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
-    $destination = $uploadsDirectory . DIRECTORY_SEPARATOR . $filename;
+    $destination = $directory . DIRECTORY_SEPARATOR . $filename;
     if (!move_uploaded_file($temporary, $destination)) {
-        throw new RuntimeException('Le téléversement de l’image a échoué.');
+        throw new RuntimeException('Le téléversement de la capture a échoué.');
     }
     chmod($destination, 0600);
     return 'media.php?file=' . $filename;
@@ -198,11 +320,20 @@ function admin_find_index(array $items, string $id): ?int
     return null;
 }
 
-$pendingToken = (string) ($_GET['token'] ?? '');
-if ($pendingToken !== '' && preg_match('/^[a-f0-9]{64}$/', $pendingToken) !== 1) {
-    $pendingToken = '';
-    admin_flash('error', 'Ce lien de connexion est invalide.');
+function admin_parse_features(string $value): array
+{
+    $lines = preg_split('/\R|,/', $value) ?: [];
+    $features = array_values(array_filter(array_map(
+        static fn (string $feature): string => gs_text($feature, 100),
+        $lines
+    )));
+    return array_slice($features, 0, 6);
 }
+
+$pendingToken = (string) ($_GET['token'] ?? '');
+$tokenData = $pendingToken !== '' ? admin_valid_token($pendingToken) : null;
+$invalidToken = $pendingToken !== '' && $tokenData === null;
+
 if (!empty($_SESSION['admin_authenticated'])) {
     $lastActivity = (int) ($_SESSION['admin_last_activity'] ?? 0);
     if ($lastActivity < time() - 7200) {
@@ -219,17 +350,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         admin_verify_csrf();
         $action = (string) ($_POST['action'] ?? '');
 
-        if ($action === 'consume_token' && empty($_SESSION['admin_authenticated'])) {
-            if (!admin_consume_token((string) ($_POST['token'] ?? ''))) {
-                throw new RuntimeException('Ce lien est invalide ou a expiré.');
+        if ($action === 'login' && empty($_SESSION['admin_authenticated'])) {
+            if (!admin_password_configured()) {
+                throw new RuntimeException('Le mot de passe administrateur doit d’abord être initialisé.');
+            }
+            if (!admin_login(trim((string) ($_POST['username'] ?? '')), (string) ($_POST['password'] ?? ''))) {
+                throw new RuntimeException('Identifiant ou mot de passe incorrect.');
             }
             admin_flash('success', 'Connexion réussie.');
             admin_redirect();
         }
 
-        if ($action === 'request_link' && empty($_SESSION['admin_authenticated'])) {
-            admin_send_login_link();
-            admin_flash('success', 'Le lien de connexion a été envoyé à l’adresse de support.');
+        if ($action === 'request_password_link' && empty($_SESSION['admin_authenticated'])) {
+            admin_send_password_link();
+            admin_flash('success', 'L’e-mail de sécurité a été envoyé à l’adresse de support.');
+            admin_redirect();
+        }
+
+        if ($action === 'set_password' && empty($_SESSION['admin_authenticated'])) {
+            admin_consume_password_token(
+                (string) ($_POST['token'] ?? ''),
+                (string) ($_POST['password'] ?? ''),
+                (string) ($_POST['password_confirmation'] ?? '')
+            );
+            admin_flash('success', 'Mot de passe enregistré. Vous êtes connecté.');
             admin_redirect();
         }
 
@@ -242,6 +386,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($_SESSION['admin_authenticated'])) {
             throw new RuntimeException('Vous devez être connecté.');
+        }
+
+        if ($action === 'change_password') {
+            $credentials = admin_credentials();
+            $hash = (string) ($credentials['password_hash'] ?? '');
+            if ($hash === '' || !password_verify((string) ($_POST['current_password'] ?? ''), $hash)) {
+                throw new RuntimeException('Le mot de passe actuel est incorrect.');
+            }
+            $password = (string) ($_POST['password'] ?? '');
+            admin_validate_password($password, (string) ($_POST['password_confirmation'] ?? ''));
+            admin_save_password($password);
+            admin_flash('success', 'Mot de passe mis à jour.');
+            admin_redirect('#compte');
         }
 
         $content = gs_read_content();
@@ -257,48 +414,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             admin_redirect('#contact');
         }
 
-        if ($action === 'save_example') {
+        if ($action === 'save_plugin') {
             $id = gs_text($_POST['id'] ?? '', 80);
-            $index = $id === '' ? null : admin_find_index($content['examples'], $id);
+            $index = $id === '' ? null : admin_find_index($content['plugins'], $id);
             $uploadedImage = admin_upload_image('image_upload');
+            $currentImage = gs_image_path($_POST['current_image'] ?? '');
+            $image = $uploadedImage ?? $currentImage;
             $title = gs_text($_POST['title'] ?? '', 100);
+            $summary = gs_text($_POST['summary'] ?? '', 700);
             $alt = gs_text($_POST['alt'] ?? '', 180);
-            if ($title === '' || $alt === '') {
-                throw new RuntimeException('Le titre et le texte alternatif de l’image sont obligatoires.');
+            if ($title === '' || $summary === '') {
+                throw new RuntimeException('Le nom et la présentation du plugin sont obligatoires.');
             }
-            $tags = array_values(array_filter(array_map(
-                static fn (string $tag): string => gs_text($tag, 30),
-                explode(',', (string) ($_POST['tags'] ?? ''))
-            )));
-            $example = [
-                'id' => $id !== '' ? $id : gs_new_id('example'),
-                'kicker' => gs_text($_POST['kicker'] ?? 'Concept de démonstration', 60),
+            if ($image !== '' && $alt === '') {
+                throw new RuntimeException('Décrivez la capture pour l’accessibilité et le référencement.');
+            }
+            $plugin = [
+                'id' => $id !== '' ? $id : gs_new_id('plugin'),
+                'label' => gs_text($_POST['label'] ?? 'Plugin réalisé', 60),
                 'title' => $title,
-                'description' => gs_text($_POST['description'] ?? '', 500),
-                'tags' => array_slice($tags, 0, 6),
-                'image' => $uploadedImage ?? gs_image_path($_POST['current_image'] ?? ''),
+                'summary' => $summary,
+                'versions' => gs_text($_POST['versions'] ?? '', 80),
+                'status' => gs_text($_POST['status'] ?? 'Privé', 40),
+                'features' => admin_parse_features((string) ($_POST['features'] ?? '')),
+                'image' => $image,
                 'alt' => $alt,
                 'published' => isset($_POST['published']),
             ];
             if ($index === null) {
-                $content['examples'][] = $example;
+                $content['plugins'][] = $plugin;
             } else {
-                $content['examples'][$index] = $example;
+                $content['plugins'][$index] = $plugin;
             }
             gs_write_content($content);
-            admin_flash('success', 'Exemple Minecraft enregistré.');
-            admin_redirect('#minecraft');
+            admin_flash('success', 'Fiche plugin enregistrée.');
+            admin_redirect('#plugins');
         }
 
-        if ($action === 'delete_example') {
+        if ($action === 'delete_plugin') {
             $id = gs_text($_POST['id'] ?? '', 80);
-            $content['examples'] = array_values(array_filter(
-                $content['examples'],
+            $content['plugins'] = array_values(array_filter(
+                $content['plugins'],
                 static fn (array $item): bool => ($item['id'] ?? '') !== $id
             ));
             gs_write_content($content);
-            admin_flash('success', 'Exemple supprimé.');
-            admin_redirect('#minecraft');
+            admin_flash('success', 'Fiche plugin supprimée.');
+            admin_redirect('#plugins');
         }
 
         if ($action === 'save_review') {
@@ -346,10 +507,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $authenticated = !empty($_SESSION['admin_authenticated']);
+$passwordConfigured = admin_password_configured();
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 $content = $authenticated ? gs_read_content() : null;
-$blankExample = ['id' => '', 'kicker' => 'Concept de démonstration', 'title' => '', 'description' => '', 'tags' => [], 'image' => 'assets/logo-gamaservice.webp', 'alt' => '', 'published' => true];
+$blankPlugin = ['id' => '', 'label' => 'Plugin réalisé', 'title' => '', 'summary' => '', 'versions' => '', 'status' => 'Privé', 'features' => [], 'image' => '', 'alt' => '', 'published' => true];
 $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'rating' => 5, 'published' => true];
 ?>
 <!doctype html>
@@ -358,7 +520,8 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow,noarchive" />
-    <meta name="theme-color" content="#060912" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#050713" />
     <link rel="icon" type="image/png" href="../assets/favicon.png" />
     <link rel="stylesheet" href="admin.css" />
     <title>Administration | GamaService</title>
@@ -377,42 +540,54 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
         <section class="login-panel">
           <p class="admin-eyebrow">Espace privé</p>
           <h1>Administration GamaService</h1>
-          <?php if ($pendingToken !== ''): ?>
-            <p>Confirmez l’ouverture de la session d’administration.</p>
-            <form method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="consume_token" /><input type="hidden" name="token" value="<?= admin_escape($pendingToken) ?>" /><button class="primary-button" type="submit">Confirmer la connexion</button></form>
+          <?php if ($invalidToken): ?><p class="flash error" role="alert">Ce lien est invalide ou a expiré.</p><?php endif; ?>
+          <?php if ($tokenData !== null): ?>
+            <p><?= ($tokenData['purpose'] ?? '') === 'setup' ? 'Créez le premier mot de passe' : 'Choisissez un nouveau mot de passe' ?> pour le compte <strong>admin</strong>.</p>
+            <form class="login-form" method="post">
+              <input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="set_password" /><input type="hidden" name="token" value="<?= admin_escape($pendingToken) ?>" />
+              <label>Identifiant<input value="admin" disabled /></label>
+              <label>Nouveau mot de passe<input type="password" name="password" required minlength="12" maxlength="200" autocomplete="new-password" /></label>
+              <label>Confirmer le mot de passe<input type="password" name="password_confirmation" required minlength="12" maxlength="200" autocomplete="new-password" /></label>
+              <button class="primary-button" type="submit">Enregistrer le mot de passe</button>
+            </form>
+          <?php elseif ($passwordConfigured): ?>
+            <p>Connectez-vous avec le compte administrateur du site.</p>
+            <form class="login-form" method="post">
+              <input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="login" />
+              <label>Identifiant<input name="username" value="admin" required maxlength="40" autocomplete="username" /></label>
+              <label>Mot de passe<input type="password" name="password" required maxlength="200" autocomplete="current-password" /></label>
+              <button class="primary-button" type="submit">Se connecter</button>
+            </form>
+            <form class="reset-form" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="request_password_link" /><button class="text-button" type="submit">Mot de passe oublié ?</button></form>
           <?php else: ?>
-            <p>Un lien de connexion valable 15 minutes sera envoyé à <strong><?= admin_escape(GS_ADMIN_EMAIL) ?></strong>.</p>
-            <form method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="request_link" /><button class="primary-button" type="submit">Envoyer le lien de connexion</button></form>
+            <p>Le compte <strong>admin</strong> est prêt. Un lien sécurisé sera envoyé à <strong><?= admin_escape(GS_ADMIN_EMAIL) ?></strong> pour créer son premier mot de passe.</p>
+            <form method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="request_password_link" /><button class="primary-button" type="submit">Initialiser le mot de passe</button></form>
           <?php endif; ?>
         </section>
       <?php else: ?>
         <section class="dashboard-intro">
           <div><p class="admin-eyebrow">Contenu du site</p><h1>Tableau de bord</h1><p>Les modifications publiées sont visibles immédiatement sur le site.</p></div>
-          <nav class="admin-tabs" aria-label="Sections"><a href="#contact">Contact</a><a href="#minecraft">Minecraft</a><a href="#avis">Avis</a></nav>
+          <nav class="admin-tabs" aria-label="Sections"><a href="#plugins">Plugins</a><a href="#avis">Avis</a><a href="#contact">Contact</a><a href="#compte">Compte</a></nav>
         </section>
 
-        <section id="contact" class="admin-section">
-          <div class="section-title"><div><p class="admin-eyebrow">Coordonnées</p><h2>Adresse de contact</h2></div></div>
-          <form class="editor compact-editor" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="save_contact" /><label>E-mail public<input type="email" name="email" required maxlength="160" value="<?= admin_escape($content['contact']['email'] ?? '') ?>" /></label><button class="primary-button" type="submit">Enregistrer</button></form>
-        </section>
-
-        <section id="minecraft" class="admin-section">
-          <div class="section-title"><div><p class="admin-eyebrow">Portfolio</p><h2>Exemples Minecraft</h2></div><span><?= count($content['examples']) ?> élément(s)</span></div>
+        <section id="plugins" class="admin-section">
+          <div class="section-title"><div><p class="admin-eyebrow">Portfolio Minecraft</p><h2>Plugins réalisés</h2><p>Présentez les fonctionnalités sans publier de fichier, de code source ou de lien de téléchargement.</p></div><span><?= count($content['plugins']) ?> élément(s)</span></div>
           <div class="editor-list">
-            <?php foreach (array_merge($content['examples'], [$blankExample]) as $example): ?>
-              <?php $isNew = ($example['id'] ?? '') === ''; ?>
+            <?php foreach (array_merge($content['plugins'], [$blankPlugin]) as $plugin): ?>
+              <?php $isNew = ($plugin['id'] ?? '') === ''; $imagePath = gs_image_path($plugin['image'] ?? ''); ?>
               <article class="editor">
-                <div class="editor-heading"><h3><?= $isNew ? 'Ajouter un exemple' : admin_escape($example['title']) ?></h3><?php if (!$isNew): ?><img src="../<?= admin_escape(gs_image_path($example['image'] ?? '')) ?>" alt="" width="140" height="90" /><?php endif; ?></div>
+                <div class="editor-heading"><h3><?= $isNew ? 'Ajouter un plugin' : admin_escape($plugin['title']) ?></h3><?php if (!$isNew && $imagePath !== ''): ?><img src="../<?= admin_escape($imagePath) ?>" alt="" width="140" height="90" /><?php endif; ?></div>
                 <form method="post" enctype="multipart/form-data">
-                  <input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="save_example" /><input type="hidden" name="id" value="<?= admin_escape($example['id'] ?? '') ?>" /><input type="hidden" name="current_image" value="<?= admin_escape($example['image'] ?? '') ?>" />
-                  <div class="field-grid"><label>Titre<input name="title" required maxlength="100" value="<?= admin_escape($example['title'] ?? '') ?>" /></label><label>Libellé<input name="kicker" maxlength="60" value="<?= admin_escape($example['kicker'] ?? '') ?>" /></label></div>
-                  <label>Description<textarea name="description" maxlength="500" required><?= admin_escape($example['description'] ?? '') ?></textarea></label>
-                  <div class="field-grid"><label>Tags séparés par des virgules<input name="tags" maxlength="220" value="<?= admin_escape(implode(', ', $example['tags'] ?? [])) ?>" /></label><label>Texte alternatif de l’image<input name="alt" required maxlength="180" value="<?= admin_escape($example['alt'] ?? '') ?>" /></label></div>
-                  <label>Nouvelle image (JPG, PNG ou WebP, 5 Mo max.)<input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp" /></label>
-                  <label class="check"><input type="checkbox" name="published" <?= !empty($example['published']) ? 'checked' : '' ?> /> Publié sur le site</label>
-                  <button class="primary-button" type="submit"><?= $isNew ? 'Ajouter' : 'Enregistrer' ?></button>
+                  <input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="save_plugin" /><input type="hidden" name="id" value="<?= admin_escape($plugin['id'] ?? '') ?>" /><input type="hidden" name="current_image" value="<?= admin_escape($plugin['image'] ?? '') ?>" />
+                  <div class="field-grid"><label>Nom du plugin<input name="title" required maxlength="100" value="<?= admin_escape($plugin['title'] ?? '') ?>" /></label><label>Libellé<input name="label" maxlength="60" value="<?= admin_escape($plugin['label'] ?? '') ?>" /></label></div>
+                  <label>Présentation<textarea name="summary" maxlength="700" required placeholder="Le besoin auquel répond le plugin et sa valeur pour le serveur."><?= admin_escape($plugin['summary'] ?? '') ?></textarea></label>
+                  <div class="field-grid"><label>Versions compatibles<input name="versions" maxlength="80" placeholder="Paper 1.20.4 - 1.21.4" value="<?= admin_escape($plugin['versions'] ?? '') ?>" /></label><label>Statut<select name="status"><?php foreach (['Privé', 'En production', 'Projet livré', 'Maintenance'] as $status): ?><option value="<?= admin_escape($status) ?>" <?= ($plugin['status'] ?? 'Privé') === $status ? 'selected' : '' ?>><?= admin_escape($status) ?></option><?php endforeach; ?></select></label></div>
+                  <label>Fonctionnalités, une par ligne<textarea name="features" maxlength="700" placeholder="Commandes personnalisées&#10;Interface de gestion&#10;Stockage sécurisé"><?= admin_escape(implode("\n", $plugin['features'] ?? [])) ?></textarea></label>
+                  <div class="field-grid"><label>Capture facultative (JPG, PNG ou WebP, 2 Mo max.)<input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp" /></label><label>Description de la capture<input name="alt" maxlength="180" value="<?= admin_escape($plugin['alt'] ?? '') ?>" /></label></div>
+                  <label class="check"><input type="checkbox" name="published" <?= !empty($plugin['published']) ? 'checked' : '' ?> /> Publié sur le site</label>
+                  <button class="primary-button" type="submit"><?= $isNew ? 'Ajouter le plugin' : 'Enregistrer' ?></button>
                 </form>
-                <?php if (!$isNew): ?><form class="delete-form" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="delete_example" /><input type="hidden" name="id" value="<?= admin_escape($example['id']) ?>" /><button class="danger-button" type="submit">Supprimer</button></form><?php endif; ?>
+                <?php if (!$isNew): ?><form class="delete-form" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="delete_plugin" /><input type="hidden" name="id" value="<?= admin_escape($plugin['id']) ?>" /><button class="danger-button" type="submit">Supprimer</button></form><?php endif; ?>
               </article>
             <?php endforeach; ?>
           </div>
@@ -435,6 +610,16 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
               </article>
             <?php endforeach; ?>
           </div>
+        </section>
+
+        <section id="contact" class="admin-section">
+          <div class="section-title"><div><p class="admin-eyebrow">Coordonnées</p><h2>Adresse de contact</h2></div></div>
+          <form class="editor compact-editor" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="save_contact" /><label>E-mail public<input type="email" name="email" required maxlength="160" value="<?= admin_escape($content['contact']['email'] ?? '') ?>" /></label><button class="primary-button" type="submit">Enregistrer</button></form>
+        </section>
+
+        <section id="compte" class="admin-section">
+          <div class="section-title"><div><p class="admin-eyebrow">Sécurité</p><h2>Compte admin</h2><p>Le mot de passe n’est jamais stocké en clair.</p></div></div>
+          <form class="editor compact-editor" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="change_password" /><label>Mot de passe actuel<input type="password" name="current_password" required maxlength="200" autocomplete="current-password" /></label><label>Nouveau mot de passe<input type="password" name="password" required minlength="12" maxlength="200" autocomplete="new-password" /></label><label>Confirmer le nouveau mot de passe<input type="password" name="password_confirmation" required minlength="12" maxlength="200" autocomplete="new-password" /></label><button class="primary-button" type="submit">Changer le mot de passe</button></form>
         </section>
       <?php endif; ?>
     </main>
