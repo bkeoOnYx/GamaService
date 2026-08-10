@@ -3,384 +3,131 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="GamaService conçoit des plugins et serveurs Minecraft, configure des serveurs Garry's Mod et crée des identités graphiques et des sites web sur mesure."
-    />
-    <meta name="theme-color" content="#070b16" />
-    <meta property="og:title" content="GamaService — Dev, config & web" />
-    <meta
-      property="og:description"
-      content="Des solutions gaming et web construites autour de votre projet."
-    />
-    <meta property="og:url" content="https://gamaservice.fr/" />
-    <meta property="og:image" content="https://gamaservice.fr/assets/logo-gamaservice.png" />
+    <meta name="description" content="GamaService accompagne vos projets Minecraft, Garry's Mod, sites web et identités graphiques avec des solutions sur mesure." />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#060912" />
+    <meta property="og:locale" content="fr_FR" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GamaService" />
+    <meta property="og:title" content="GamaService | Studio gaming, web et graphisme" />
+    <meta property="og:description" content="Des solutions sur mesure pour Minecraft, Garry's Mod, le web et votre identité visuelle." />
+    <meta property="og:url" content="https://gamaservice.fr/" />
+    <meta property="og:image" content="https://gamaservice.fr/assets/logo-gamaservice-og.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="https://gamaservice.fr/" />
-    <link rel="icon" type="image/png" href="assets/logo-gamaservice.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
     <link rel="stylesheet" href="styles.css" />
-    <title>GamaService — Dev, config & web</title>
+    <title>GamaService | Studio gaming, web et graphisme</title>
   </head>
   <body>
     <a class="skip-link" href="#main">Aller au contenu</a>
-
     <header class="site-header" data-header>
       <div class="container nav-shell">
-        <a class="brand" href="#top" aria-label="GamaService, accueil">
-          <img src="assets/logo-gamaservice.png" alt="" width="42" height="42" />
+        <a class="brand" href="index.html" aria-label="GamaService, accueil">
+          <img src="assets/logo-gamaservice.webp" alt="" width="38" height="38" />
           <span>Gama<span>Service</span></span>
         </a>
-
-        <button
-          class="menu-toggle"
-          type="button"
-          aria-label="Ouvrir le menu"
-          aria-expanded="false"
-          aria-controls="main-navigation"
-          data-menu-toggle
-        >
-          <span></span><span></span>
-        </button>
-
+        <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="main-navigation" data-menu-toggle><span></span><span></span></button>
         <nav id="main-navigation" class="main-nav" aria-label="Navigation principale" data-menu>
-          <a href="#services">Services</a>
-          <a href="#methode">Méthode</a>
-          <a href="#engagements">Pourquoi nous</a>
-          <a class="button button-small button-ghost" href="#contact">Parler du projet</a>
+          <a href="minecraft.html">Minecraft</a>
+          <a href="garrys-mod.html">Garry's Mod</a>
+          <a href="sites-web.html">Sites web</a>
+          <a href="graphisme.html">Graphisme</a>
+          <a href="avis.html">Avis</a>
+          <a class="button button-small button-secondary" href="#contact">Contact</a>
         </nav>
       </div>
     </header>
 
     <main id="main">
-      <section id="top" class="hero section">
-        <div class="hero-grid" aria-hidden="true"></div>
-        <div class="hero-orb hero-orb-purple" aria-hidden="true"></div>
-        <div class="hero-orb hero-orb-blue" aria-hidden="true"></div>
-
-        <div class="container hero-layout">
+      <section class="hero">
+        <div class="container">
           <div class="hero-copy reveal">
-            <p class="eyebrow"><span></span> Studio digital & gaming</p>
-            <h1>On construit des projets qui font <em>la différence.</em></h1>
-            <p class="hero-lead">
-              Plugins Minecraft, configuration Garry's Mod, graphisme et sites web sur
-              mesure — une équipe créative au service de votre idée.
-            </p>
+            <p class="eyebrow">Studio digital & gaming</p>
+            <h1>Studio Minecraft, Garry's Mod, web & <em>graphisme.</em></h1>
+            <p class="hero-lead">GamaService conçoit des expériences solides, cohérentes et faites pour durer, du serveur de jeu à l'identité visuelle qui le rend reconnaissable.</p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#contact">
-                Démarrer un projet
-                <svg viewBox="0 0 20 20" aria-hidden="true">
-                  <path d="M4 10h12M11 5l5 5-5 5" />
-                </svg>
-              </a>
-              <a class="text-link" href="#services">Découvrir nos services <span>↓</span></a>
+              <a class="button button-primary" href="#contact">Présenter mon projet</a>
+              <a class="button button-secondary" href="minecraft.html">Voir les exemples Minecraft</a>
             </div>
-            <ul class="hero-points" aria-label="Nos garanties">
-              <li><span class="point-icon">✓</span> Développement sur mesure</li>
-              <li><span class="point-icon">✓</span> Suivi clair du projet</li>
-              <li><span class="point-icon">✓</span> Livraison documentée</li>
+            <ul class="trust-row" aria-label="Engagements GamaService">
+              <li>Sur mesure</li><li>Suivi clair</li><li>Livraison documentée</li>
             </ul>
           </div>
-
-          <div class="hero-visual reveal reveal-delay" aria-label="Les univers GamaService">
-            <div class="visual-glow" aria-hidden="true"></div>
-            <div class="logo-stage">
-              <img src="assets/logo-gamaservice.png" alt="Logo GamaService" />
-              <span class="scan-line" aria-hidden="true"></span>
-            </div>
-            <div class="floating-card floating-card-top">
-              <span class="floating-icon">⌁</span>
-              <span><strong>Web</strong>Interfaces modernes</span>
-            </div>
-            <div class="floating-card floating-card-left">
-              <span class="floating-icon">⌘</span>
-              <span><strong>Minecraft</strong>Plugins & serveurs</span>
-            </div>
-            <div class="floating-card floating-card-right">
-              <span class="floating-icon">⚙</span>
-              <span><strong>Garry's Mod</strong>Configuration complète</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="container capability-strip reveal" aria-label="Expertises GamaService">
-          <p>Un seul studio, trois expertises</p>
-          <div><span>01</span> Jeux vidéo</div>
-          <div><span>02</span> Sites internet</div>
-          <div><span>03</span> Graphisme</div>
         </div>
       </section>
 
-      <section id="services" class="section services-section">
+      <section class="section" aria-labelledby="services-title">
         <div class="container">
           <div class="section-heading reveal">
-            <div>
-              <p class="eyebrow"><span></span> Nos expertises</p>
-              <h2>Une solution pensée pour <em>votre projet.</em></h2>
-            </div>
-            <p>
-              Du concept à la mise en ligne, chaque réalisation est construite pour être
-              fiable, claire à maintenir et agréable à utiliser.
-            </p>
+            <div><p class="eyebrow">Expertises</p><h2 id="services-title">Quatre métiers, une direction <em>cohérente.</em></h2></div>
+            <p>Chaque prestation peut vivre seule ou s'intégrer dans un projet complet, avec un interlocuteur unique.</p>
           </div>
-
           <div class="services-grid">
-            <article class="service-card service-purple reveal">
-              <div class="service-topline">
-                <span class="service-number">01</span>
-                <span class="service-status">Minecraft & GMod</span>
-              </div>
-              <div class="service-icon" aria-hidden="true">⌘</div>
-              <h3>Jeux vidéo</h3>
-              <p>
-                Des solutions personnalisées pour construire, configurer et faire évoluer
-                votre serveur et votre communauté gaming.
-              </p>
-              <ul>
-                <li>Plugins et serveurs Minecraft</li>
-                <li>Configuration complète Garry's Mod</li>
-                <li>Optimisation, maintenance et suivi</li>
-              </ul>
-              <a href="#contact" data-service-link="Jeux vidéo">Discuter du projet <span>↗</span></a>
-            </article>
-
-            <article class="service-card service-blue reveal reveal-delay-small">
-              <div class="service-topline">
-                <span class="service-number">02</span>
-                <span class="service-status">Responsive</span>
-              </div>
-              <div class="service-icon code-icon" aria-hidden="true">&lt;/&gt;</div>
-              <h3>Sites internet</h3>
-              <p>
-                Des sites rapides et professionnels qui donnent confiance et présentent
-                clairement votre activité sur tous les écrans.
-              </p>
-              <ul>
-                <li>Site vitrine et landing page</li>
-                <li>Design responsive personnalisé</li>
-                <li>Mise en ligne et évolutions</li>
-              </ul>
-              <a href="#contact" data-service-link="Sites internet">Discuter du projet <span>↗</span></a>
-            </article>
-
-            <article class="service-card service-violet reveal reveal-delay-large">
-              <div class="service-topline">
-                <span class="service-number">03</span>
-                <span class="service-status">Créatif</span>
-              </div>
-              <div class="service-icon" aria-hidden="true">✦</div>
-              <h3>Graphisme</h3>
-              <p>
-                Une identité visuelle forte et cohérente pour rendre votre projet
-                reconnaissable dès le premier regard.
-              </p>
-              <ul>
-                <li>Logo et identité visuelle</li>
-                <li>Bannières et visuels réseaux</li>
-                <li>Supports pour serveurs gaming</li>
-              </ul>
-              <a href="#contact" data-service-link="Graphisme">Discuter du projet <span>↗</span></a>
-            </article>
-
+            <article class="service-card reveal"><span class="service-index">01 / MINECRAFT</span><h3>Serveurs Minecraft</h3><p>Builds, configuration, plugins et parcours joueur pensés autour de votre concept.</p><a href="minecraft.html">Découvrir Minecraft</a></article>
+            <article class="service-card reveal"><span class="service-index">02 / GARRY'S MOD</span><h3>Serveurs Garry's Mod</h3><p>Installation, configuration et optimisation pour une base propre et stable.</p><a href="garrys-mod.html">Découvrir Garry's Mod</a></article>
+            <article class="service-card reveal"><span class="service-index">03 / WEB</span><h3>Sites internet</h3><p>Des sites rapides et adaptés à tous les écrans pour présenter et convertir.</p><a href="sites-web.html">Découvrir le web</a></article>
+            <article class="service-card reveal"><span class="service-index">04 / DESIGN</span><h3>Graphisme</h3><p>Logo, identité et supports visuels pour donner un visage fort à votre projet.</p><a href="graphisme.html">Découvrir le graphisme</a></article>
           </div>
         </div>
       </section>
 
-      <section id="methode" class="section method-section">
-        <div class="container method-layout">
-          <div class="method-intro reveal">
-            <p class="eyebrow"><span></span> Notre méthode</p>
-            <h2>Simple à suivre.<br /><em>Sérieux à chaque étape.</em></h2>
-            <p>
-              Vous savez où en est le projet, ce qui est en cours et ce qui arrive ensuite.
-              Pas de zone grise, pas de jargon inutile.
-            </p>
-            <a class="button button-secondary" href="#contact">Présenter mon idée</a>
-          </div>
-
-          <ol class="steps-list">
-            <li class="step reveal">
-              <span class="step-index">01</span>
-              <div>
-                <h3>Échange & cadrage</h3>
-                <p>On clarifie votre idée, vos objectifs, votre budget et vos priorités.</p>
-              </div>
-            </li>
-            <li class="step reveal">
-              <span class="step-index">02</span>
-              <div>
-                <h3>Proposition</h3>
-                <p>Vous recevez une solution lisible avec un périmètre et des délais réalistes.</p>
-              </div>
-            </li>
-            <li class="step reveal">
-              <span class="step-index">03</span>
-              <div>
-                <h3>Création & suivi</h3>
-                <p>Le projet avance par étapes avec des points réguliers et des validations.</p>
-              </div>
-            </li>
-            <li class="step reveal">
-              <span class="step-index">04</span>
-              <div>
-                <h3>Livraison & support</h3>
-                <p>Vous récupérez une solution testée, expliquée et prête à évoluer.</p>
-              </div>
-            </li>
-          </ol>
-        </div>
-      </section>
-
-      <section id="engagements" class="section commitments-section">
+      <section class="section band" aria-labelledby="examples-title">
         <div class="container">
-          <div class="commitment-panel reveal">
-            <div class="commitment-copy">
-              <p class="eyebrow"><span></span> L'engagement GamaService</p>
-              <h2>Du propre, du fiable,<br /><em>du concret.</em></h2>
-              <p>
-                Chaque projet est pensé pour fonctionner aujourd'hui et rester simple à
-                faire évoluer demain.
-              </p>
-            </div>
-            <div class="commitment-grid">
-              <article>
-                <span>01</span>
-                <h3>Communication claire</h3>
-                <p>Des réponses compréhensibles et un suivi régulier.</p>
-              </article>
-              <article>
-                <span>02</span>
-                <h3>Qualité maîtrisée</h3>
-                <p>Des tests et des vérifications avant chaque livraison.</p>
-              </article>
-              <article>
-                <span>03</span>
-                <h3>Solution adaptée</h3>
-                <p>Pas de formule générique : le périmètre suit votre besoin.</p>
-              </article>
-              <article>
-                <span>04</span>
-                <h3>Base évolutive</h3>
-                <p>Une réalisation structurée pour accompagner la suite.</p>
-              </article>
-            </div>
+          <div class="section-heading reveal">
+            <div><p class="eyebrow">Aperçu Minecraft</p><h2 id="examples-title">Des univers pensés pour <em>être joués.</em></h2></div>
+            <p>Ces premières images sont des concepts de démonstration. Elles montrent des directions possibles, pas des commandes clients déjà livrées.</p>
+          </div>
+          <div class="example-grid" data-example-grid aria-live="polite">
+            <article class="example-card"><img src="assets/examples/spawn-medieval.webp" alt="Concept voxel d’un spawn Minecraft médiéval avec grande porte fortifiée" width="1586" height="992" loading="lazy" /><div class="example-body"><p class="example-kicker">Concept de démonstration</p><h3>Spawn médiéval communautaire</h3><p>Une place centrale lisible, des zones d’accueil et une architecture pensée pour guider les nouveaux joueurs dès leur arrivée.</p><ul class="tag-list"><li>Build</li><li>Spawn</li><li>Orientation</li><li>Sur mesure</li></ul></div></article>
+            <article class="example-card"><img src="assets/examples/hub-futuriste.webp" alt="Concept voxel d’un hub Minecraft futuriste éclairé en bleu et violet" width="1587" height="991" loading="lazy" /><div class="example-body"><p class="example-kicker">Concept de démonstration</p><h3>Hub futuriste multi-modes</h3><p>Un hub structuré autour de portails et de parcours courts, conçu pour relier clairement plusieurs modes de jeu.</p><ul class="tag-list"><li>Hub</li><li>Portails</li><li>Multi-modes</li><li>Direction artistique</li></ul></div></article>
+            <article class="example-card"><img src="assets/examples/village-survie.webp" alt="Concept voxel d’un village Minecraft avec marché, cultures et rivière" width="1586" height="992" loading="lazy" /><div class="example-body"><p class="example-kicker">Concept de démonstration</p><h3>Village survie & économie</h3><p>Une zone marchande chaleureuse qui rassemble boutiques, ressources et lieux de rencontre sans perdre l’esprit survie.</p><ul class="tag-list"><li>Survie</li><li>Économie</li><li>Village</li><li>Expérience joueur</li></ul></div></article>
           </div>
         </div>
       </section>
 
-      <section id="contact" class="section contact-section">
-        <div class="container contact-layout">
-          <div class="contact-copy reveal">
-            <p class="eyebrow"><span></span> Votre projet</p>
-            <h2>Une idée en tête ?<br /><em>Parlons-en.</em></h2>
-            <p>
-              Préparez un brief en quelques secondes. Vous pourrez le copier et nous
-              l'envoyer dès que le canal de contact sera connecté au site.
-            </p>
-            <div class="availability-card">
-              <span class="availability-dot"></span>
-              <div>
-                <strong>Projets sur devis</strong>
-                <small>Réponse et estimation après étude du besoin</small>
-              </div>
-            </div>
+      <section class="section" aria-labelledby="method-title">
+        <div class="container">
+          <div class="section-heading reveal"><div><p class="eyebrow">Méthode</p><h2 id="method-title">Un projet lisible, du brief à la <em>livraison.</em></h2></div><p>Le périmètre, les étapes et les validations sont posés clairement avant d'avancer.</p></div>
+          <div class="process-grid">
+            <article class="process-card reveal"><span>01</span><h3>Cadrage</h3><p>Objectifs, contraintes, budget et priorités.</p></article>
+            <article class="process-card reveal"><span>02</span><h3>Proposition</h3><p>Solution, périmètre et planning compréhensibles.</p></article>
+            <article class="process-card reveal"><span>03</span><h3>Création</h3><p>Avancement par étapes avec points de validation.</p></article>
+            <article class="process-card reveal"><span>04</span><h3>Livraison</h3><p>Vérifications, documentation et prise en main.</p></article>
           </div>
+        </div>
+      </section>
 
-          <form class="brief-form reveal reveal-delay" data-brief-form>
-            <div class="field-group">
-              <label for="service">Quel service vous intéresse ?</label>
-              <select id="service" name="service" required>
-                <option value="">Choisir un service</option>
-                <option value="Jeux vidéo">Jeux vidéo — Minecraft ou Garry's Mod</option>
-                <option value="Graphisme">Graphisme — identité et visuels</option>
-                <option value="Sites internet">Création de site internet</option>
-                <option value="Autre">Autre demande</option>
-              </select>
+      <section id="contact" class="section contact-section" aria-labelledby="contact-title">
+        <div class="container contact-layout">
+          <div class="reveal">
+            <p class="eyebrow">Contact</p>
+            <h2 id="contact-title">Parlons de votre <em>projet.</em></h2>
+            <p class="page-lead">Décrivez même une idée encore imparfaite. Nous vous répondrons avec les questions utiles pour la cadrer.</p>
+            <a class="contact-email" href="mailto:support.gamaservice@gmail.com" data-contact-email>support.gamaservice@gmail.com</a>
+            <p class="page-lead">Réponse par e-mail. Aucun compte n'est nécessaire.</p>
+          </div>
+          <form class="brief-form reveal" data-brief-form>
+            <div class="form-grid">
+              <div class="field-group"><label for="service">Service</label><select id="service" name="service" required><option value="">Choisir</option><option>Minecraft</option><option>Garry's Mod</option><option>Site web</option><option>Graphisme</option><option>Projet complet</option></select></div>
+              <div class="field-group"><label for="budget">Budget indicatif</label><select id="budget" name="budget" required><option value="">Choisir</option><option>Moins de 500 €</option><option>500 € à 1 500 €</option><option>1 500 € à 5 000 €</option><option>Plus de 5 000 €</option><option>À définir</option></select></div>
+              <div class="field-group"><label for="deadline">Échéance</label><select id="deadline" name="deadline" required><option value="">Choisir</option><option>Dès que possible</option><option>Dans 1 à 2 mois</option><option>Dans 3 mois ou plus</option><option>À définir</option></select></div>
             </div>
-
-            <div class="field-group">
-              <label for="project">Décrivez votre idée</label>
-              <textarea
-                id="project"
-                name="project"
-                rows="5"
-                placeholder="Objectif, fonctionnalités, univers, contraintes…"
-                required
-              ></textarea>
-            </div>
-
-            <div class="form-row">
-              <div class="field-group">
-                <label for="budget">Budget envisagé</label>
-                <select id="budget" name="budget">
-                  <option value="À définir">À définir</option>
-                  <option value="Moins de 250 €">Moins de 250 €</option>
-                  <option value="250 € – 500 €">250 € – 500 €</option>
-                  <option value="500 € – 1 000 €">500 € – 1 000 €</option>
-                  <option value="Plus de 1 000 €">Plus de 1 000 €</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label for="deadline">Échéance</label>
-                <select id="deadline" name="deadline">
-                  <option value="Flexible">Flexible</option>
-                  <option value="Dès que possible">Dès que possible</option>
-                  <option value="Sous 1 mois">Sous 1 mois</option>
-                  <option value="Sous 3 mois">Sous 3 mois</option>
-                </select>
-              </div>
-            </div>
-
-            <button class="button button-primary form-submit" type="submit">
-              Copier mon brief
-              <svg viewBox="0 0 20 20" aria-hidden="true">
-                <path d="M7 6V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 6h5a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" />
-              </svg>
-            </button>
-            <p class="form-note" data-form-status aria-live="polite">
-              Aucun envoi automatique : vos informations restent dans votre navigateur.
-            </p>
+            <div class="field-group"><label for="project">Votre idée</label><textarea id="project" name="project" required minlength="20" placeholder="Objectif, fonctionnalités, univers, contraintes..."></textarea></div>
+            <button class="button button-primary form-submit" type="submit">Préparer mon e-mail</button>
+            <p class="form-note" data-form-status>Le bouton ouvre votre messagerie et copie le brief.</p>
           </form>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="container footer-main">
-        <div class="footer-brand">
-          <a class="brand" href="#top">
-            <img src="assets/logo-gamaservice.png" alt="" width="42" height="42" />
-            <span>Gama<span>Service</span></span>
-          </a>
-          <p>Développement, configuration et création web sur mesure.</p>
-        </div>
-        <div class="footer-links">
-          <div>
-            <strong>Navigation</strong>
-            <a href="#services">Services</a>
-            <a href="#methode">Méthode</a>
-            <a href="#contact">Contact</a>
-          </div>
-          <div>
-            <strong>Expertises</strong>
-            <a href="#services">Minecraft</a>
-            <a href="#services">Garry's Mod</a>
-            <a href="#services">Graphisme</a>
-            <a href="#services">Sites internet</a>
-          </div>
-        </div>
-      </div>
-      <div class="container footer-bottom">
-        <span>© <span data-year></span> GamaService</span>
-        <span>Conçu pour donner vie aux bonnes idées.</span>
+    <footer class="site-footer" itemscope itemtype="https://schema.org/ProfessionalService">
+      <div class="container">
+        <div class="footer-main"><div class="footer-brand"><a class="brand" href="index.html" itemprop="url"><img src="assets/logo-gamaservice.webp" alt="" width="38" height="38" /><span itemprop="name">Gama<span>Service</span></span></a><p>Studio français spécialisé dans les projets gaming, web et visuels sur mesure.</p></div><nav class="footer-links" aria-label="Navigation de pied de page"><a href="minecraft.html">Minecraft</a><a href="garrys-mod.html">Garry's Mod</a><a href="sites-web.html">Sites web</a><a href="graphisme.html">Graphisme</a><a href="avis.html">Avis clients</a><a href="mailto:support.gamaservice@gmail.com" itemprop="email" data-contact-email>support.gamaservice@gmail.com</a></nav></div>
+        <div class="footer-bottom"><span>© <span data-year></span> GamaService</span><span>France · Prestations à distance</span></div>
       </div>
     </footer>
-
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+    <script src="content.js" defer></script>
   </body>
 </html>

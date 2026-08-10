@@ -1,0 +1,38 @@
+{
+  "contact": {
+    "email": "support.gamaservice@gmail.com"
+  },
+  "examples": [
+    {
+      "id": "demo-spawn-medieval",
+      "kicker": "Concept de démonstration",
+      "title": "Spawn médiéval communautaire",
+      "description": "Une place centrale lisible, des zones d’accueil et une architecture pensée pour guider les nouveaux joueurs dès leur arrivée.",
+      "tags": ["Build", "Spawn", "Orientation", "Sur mesure"],
+      "image": "assets/examples/spawn-medieval.webp",
+      "alt": "Concept voxel d’un spawn Minecraft médiéval avec grande porte fortifiée",
+      "published": true
+    },
+    {
+      "id": "demo-hub-futuriste",
+      "kicker": "Concept de démonstration",
+      "title": "Hub futuriste multi-modes",
+      "description": "Un hub structuré autour de portails et de parcours courts, conçu pour relier clairement plusieurs modes de jeu.",
+      "tags": ["Hub", "Portails", "Multi-modes", "Direction artistique"],
+      "image": "assets/examples/hub-futuriste.webp",
+      "alt": "Concept voxel d’un hub Minecraft futuriste éclairé en bleu et violet",
+      "published": true
+    },
+    {
+      "id": "demo-village-survie",
+      "kicker": "Concept de démonstration",
+      "title": "Village survie & économie",
+      "description": "Une zone marchande chaleureuse qui rassemble boutiques, ressources et lieux de rencontre sans perdre l’esprit survie.",
+      "tags": ["Survie", "Économie", "Village", "Expérience joueur"],
+      "image": "assets/examples/village-survie.webp",
+      "alt": "Concept voxel d’un village Minecraft avec marché, cultures et rivière",
+      "published": true
+    }
+  ],
+  "reviews": []
+}

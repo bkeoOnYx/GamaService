@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /includes/
+Disallow: /media.php
 
 Sitemap: https://gamaservice.fr/sitemap.xml
-

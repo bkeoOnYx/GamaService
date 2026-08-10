@@ -1,27 +1,22 @@
 # GamaService
 
-Vitrine statique de GamaService organisée autour de trois pôles : jeux vidéo (Minecraft et Garry's Mod), sites internet et graphisme.
+Site vitrine de [gamaservice.fr](https://gamaservice.fr/), déployé sur un hébergement web OVH depuis la branche `main`.
 
-## Aperçu local
+## Pages publiques
 
-Le site n'a aucune dépendance. Ouvrez simplement `index.html` dans un navigateur, ou servez le dossier avec un petit serveur HTTP local.
+- Minecraft, Garry's Mod, sites web et graphisme
+- Galerie de concepts Minecraft administrable
+- Avis clients administrables
+- Formulaire de brief ouvrant la messagerie du visiteur
 
-## Publication OVH
+## Administration
 
-Ce dépôt est prêt pour un hébergement web mutualisé OVH : aucun build, aucune base de données et aucune dépendance serveur ne sont nécessaires.
+L'espace `/admin/` utilise un lien de connexion à usage unique envoyé à `support.gamaservice@gmail.com`. Aucun mot de passe n'est stocké dans le dépôt.
 
-1. Dans l'espace client OVHcloud, ouvrir **Web Cloud → Hébergements → gamaservice.fr → Multisite**.
-2. Vérifier le **Dossier racine** associé à `gamaservice.fr` et `www.gamaservice.fr` (souvent `www`).
-3. Dans **FTP - SSH**, récupérer l'hôte, l'utilisateur et le mot de passe FTP/SFTP.
-4. Envoyer à la racine du domaine les fichiers `index.html`, `styles.css`, `script.js`, `.htaccess`, `.nojekyll`, `robots.txt`, `sitemap.xml` et le dossier `assets/`.
-5. Supprimer l'éventuel `index.html` par défaut créé par OVH avant l'envoi.
-6. Vérifier que le certificat SSL OVH est actif, puis tester `https://gamaservice.fr`.
+Les contenus modifiés et les images téléversées sont conservés dans `gamaservice-data`, à côté de la racine web. Ils ne sont donc pas remplacés par les déploiements Git.
 
-Pour créer une archive locale prête à envoyer :
+Prérequis OVH : PHP 8.1 ou supérieur, extension Fileinfo et fonction `mail()` active.
 
-```powershell
-New-Item -ItemType Directory -Force dist
-Compress-Archive -Force -LiteralPath index.html,styles.css,script.js,.htaccess,.nojekyll,robots.txt,sitemap.xml,assets -DestinationPath dist/gamaservice-ovh.zip
-```
+## Développement local
 
-Le formulaire de brief fonctionne entièrement dans le navigateur et ne transmet aucune donnée. Un lien Discord ou une adresse e-mail pourra être ajouté lorsque le canal de contact sera prêt.
+Les pages publiques restent consultables avec un serveur statique. Sans PHP, `content.js` utilise automatiquement `data/default-content.json` comme contenu de démonstration.
