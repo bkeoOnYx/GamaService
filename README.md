@@ -9,6 +9,7 @@ Site vitrine de [gamaservice.fr](https://gamaservice.fr/), déployé sur un héb
 - Sélection générale limitée à trois réalisations sur l'accueil
 - Avis clients administrables
 - Contact par e-mail ou Discord et formulaire de brief avec moyen de réponse facultatif
+- Mentions légales et politique de confidentialité accessibles depuis chaque pied de page
 
 ## Administration
 

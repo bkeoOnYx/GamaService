@@ -25,11 +25,11 @@ RewriteRule ^ https://gamaservice.fr%{REQUEST_URI} [R=301,L]
 RewriteCond %{THE_REQUEST} \s/+index\.html(?:\?|\s) [NC]
 RewriteRule ^index\.html$ https://gamaservice.fr/ [R=301,L]
 
-RewriteCond %{THE_REQUEST} \s/+(?:minecraft|garrys-mod|sites-web|graphisme|avis)\.html(?:\?|\s) [NC]
-RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis)\.html$ https://gamaservice.fr/$1 [R=301,L,NE]
+RewriteCond %{THE_REQUEST} \s/+(?:minecraft|garrys-mod|sites-web|graphisme|avis|mentions-legales|confidentialite)\.html(?:\?|\s) [NC]
+RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis|mentions-legales|confidentialite)\.html$ https://gamaservice.fr/$1 [R=301,L,NE]
 
-RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis)/$ https://gamaservice.fr/$1 [R=301,L]
-RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis)$ $1.html [L]
+RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis|mentions-legales|confidentialite)/$ https://gamaservice.fr/$1 [R=301,L]
+RewriteRule ^(minecraft|garrys-mod|sites-web|graphisme|avis|mentions-legales|confidentialite)$ $1.html [L]
 
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json image/svg+xml
