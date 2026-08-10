@@ -523,7 +523,7 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
     <meta name="referrer" content="no-referrer" />
     <meta name="theme-color" content="#050713" />
     <link rel="icon" type="image/png" href="../assets/favicon.png" />
-    <link rel="stylesheet" href="admin.css?v=20260810-2" />
+    <link rel="stylesheet" href="admin.css?v=20260810-3" />
     <title>Administration | GamaService</title>
   </head>
   <body>

@@ -337,8 +337,8 @@ em {
 .hero-mark img {
   width: min(100%, 440px);
   margin-inline: auto;
-  -webkit-mask-image: radial-gradient(ellipse 72% 76% at center, #000 50%, rgba(0, 0, 0, 0.78) 66%, transparent 100%);
-  mask-image: radial-gradient(ellipse 72% 76% at center, #000 50%, rgba(0, 0, 0, 0.78) 66%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at center, #000 54%, rgba(0, 0, 0, 0.86) 74%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 50% at center, #000 54%, rgba(0, 0, 0, 0.86) 74%, transparent 100%);
   mix-blend-mode: screen;
   filter: drop-shadow(0 0 44px rgba(59, 130, 246, 0.2));
 }
