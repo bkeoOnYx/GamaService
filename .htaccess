@@ -1,6 +1,14 @@
 Options -Indexes -MultiViews
+AddDefaultCharset UTF-8
 
 RewriteEngine On
+
+# Prevent repository metadata and local configuration from being served.
+RewriteRule "(^|/)\.git(?:/|$)" - [F,L,NC]
+
+<FilesMatch "(?i)^(?:\.env(?:\..*)?|\.gitignore|\.gitattributes|\.nojekyll|README(?:\.[a-z0-9]+)?|CHANGELOG(?:\.[a-z0-9]+)?|composer\.(?:json|lock)|package(?:-lock)?\.json|yarn\.lock|pnpm-lock\.yaml)$">
+  Require all denied
+</FilesMatch>
 
 # Canonical production domain.
 RewriteCond %{HTTP_HOST} ^www\.gamaservice\.fr$ [NC]
@@ -27,9 +35,14 @@ RewriteRule ^ https://gamaservice.fr%{REQUEST_URI} [R=301,L]
 </IfModule>
 
 <IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; frame-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; media-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
+  Header always set Strict-Transport-Security "max-age=604800"
+  Header always set X-Frame-Options "DENY"
   Header always set X-Content-Type-Options "nosniff"
+  Header always set X-XSS-Protection "0"
+  Header always set X-Permitted-Cross-Domain-Policies "none"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
-  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
   Header set Cache-Control "no-cache, must-revalidate" "expr=%{REQUEST_URI} =~ m#^/index\.html$#"
 </IfModule>
-

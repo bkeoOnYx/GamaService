@@ -1031,6 +1031,15 @@ h2 em {
   color: var(--success);
 }
 
+.clipboard-fallback {
+  position: fixed;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .site-footer {
   padding: 58px 0 26px;
   border-top: 1px solid var(--line);
