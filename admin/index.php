@@ -408,15 +408,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!is_string($email)) {
                 throw new RuntimeException('L’adresse e-mail est invalide.');
             }
+            $discord = gs_discord_url($_POST['discord'] ?? '');
+            if ($discord === '') {
+                throw new RuntimeException('Le lien Discord doit utiliser une adresse officielle discord.gg ou discord.com.');
+            }
             $content['contact']['email'] = $email;
+            $content['contact']['discord'] = $discord;
             gs_write_content($content);
-            admin_flash('success', 'Adresse de contact mise à jour.');
+            admin_flash('success', 'Coordonnées de contact mises à jour.');
             admin_redirect('#contact');
         }
 
         if ($action === 'save_plugin') {
             $id = gs_text($_POST['id'] ?? '', 80);
             $index = $id === '' ? null : admin_find_index($content['plugins'], $id);
+            $service = gs_text($_POST['service'] ?? 'minecraft', 40);
+            if (!in_array($service, ['minecraft', 'garrys-mod', 'sites-web', 'graphisme'], true)) {
+                throw new RuntimeException('La catégorie du portfolio est invalide.');
+            }
             $uploadedImage = admin_upload_image('image_upload');
             $currentImage = gs_image_path($_POST['current_image'] ?? '');
             $image = $uploadedImage ?? $currentImage;
@@ -424,14 +433,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $summary = gs_text($_POST['summary'] ?? '', 700);
             $alt = gs_text($_POST['alt'] ?? '', 180);
             if ($title === '' || $summary === '') {
-                throw new RuntimeException('Le nom et la présentation du plugin sont obligatoires.');
+                throw new RuntimeException('Le nom et la présentation de la réalisation sont obligatoires.');
             }
             if ($image !== '' && $alt === '') {
                 throw new RuntimeException('Décrivez la capture pour l’accessibilité et le référencement.');
             }
             $plugin = [
-                'id' => $id !== '' ? $id : gs_new_id('plugin'),
-                'label' => gs_text($_POST['label'] ?? 'Plugin réalisé', 60),
+                'id' => $id !== '' ? $id : gs_new_id('portfolio'),
+                'service' => $service,
+                'label' => gs_text($_POST['label'] ?? 'Projet réalisé', 60),
                 'title' => $title,
                 'summary' => $summary,
                 'versions' => gs_text($_POST['versions'] ?? '', 80),
@@ -447,7 +457,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $content['plugins'][$index] = $plugin;
             }
             gs_write_content($content);
-            admin_flash('success', 'Fiche plugin enregistrée.');
+            admin_flash('success', 'Réalisation enregistrée dans le portfolio.');
             admin_redirect('#plugins');
         }
 
@@ -458,7 +468,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 static fn (array $item): bool => ($item['id'] ?? '') !== $id
             ));
             gs_write_content($content);
-            admin_flash('success', 'Fiche plugin supprimée.');
+            admin_flash('success', 'Réalisation supprimée.');
             admin_redirect('#plugins');
         }
 
@@ -511,7 +521,7 @@ $passwordConfigured = admin_password_configured();
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 $content = $authenticated ? gs_read_content() : null;
-$blankPlugin = ['id' => '', 'label' => 'Plugin réalisé', 'title' => '', 'summary' => '', 'versions' => '', 'status' => 'Privé', 'features' => [], 'image' => '', 'alt' => '', 'published' => true];
+$blankPlugin = ['id' => '', 'service' => 'minecraft', 'label' => 'Projet réalisé', 'title' => '', 'summary' => '', 'versions' => '', 'status' => 'Privé', 'features' => [], 'image' => '', 'alt' => '', 'published' => true];
 $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'rating' => 5, 'published' => true];
 ?>
 <!doctype html>
@@ -567,25 +577,26 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
       <?php else: ?>
         <section class="dashboard-intro">
           <div><p class="admin-eyebrow">Contenu du site</p><h1>Tableau de bord</h1><p>Les modifications publiées sont visibles immédiatement sur le site.</p></div>
-          <nav class="admin-tabs" aria-label="Sections"><a href="#plugins">Plugins</a><a href="#avis">Avis</a><a href="#contact">Contact</a><a href="#compte">Compte</a></nav>
+          <nav class="admin-tabs" aria-label="Sections"><a href="#plugins">Portfolio</a><a href="#avis">Avis</a><a href="#contact">Contact</a><a href="#compte">Compte</a></nav>
         </section>
 
         <section id="plugins" class="admin-section">
-          <div class="section-title"><div><p class="admin-eyebrow">Portfolio Minecraft</p><h2>Plugins réalisés</h2><p>Présentez les fonctionnalités sans publier de fichier, de code source ou de lien de téléchargement.</p></div><span><?= count($content['plugins']) ?> élément(s)</span></div>
+          <div class="section-title"><div><p class="admin-eyebrow">Tous les services</p><h2>Réalisations du portfolio</h2><p>Classez chaque réalisation par service. L’accueil montre seulement trois éléments, tandis que chaque page affiche sa sélection complète.</p></div><span><?= count($content['plugins']) ?> élément(s)</span></div>
           <div class="editor-list">
             <?php foreach (array_merge($content['plugins'], [$blankPlugin]) as $plugin): ?>
               <?php $isNew = ($plugin['id'] ?? '') === ''; $imagePath = gs_image_path($plugin['image'] ?? ''); ?>
               <article class="editor">
-                <div class="editor-heading"><h3><?= $isNew ? 'Ajouter un plugin' : admin_escape($plugin['title']) ?></h3><?php if (!$isNew && $imagePath !== ''): ?><img src="../<?= admin_escape($imagePath) ?>" alt="" width="140" height="90" /><?php endif; ?></div>
+                <div class="editor-heading"><h3><?= $isNew ? 'Ajouter une réalisation' : admin_escape($plugin['title']) ?></h3><?php if (!$isNew && $imagePath !== ''): ?><img src="../<?= admin_escape($imagePath) ?>" alt="" width="140" height="90" /><?php endif; ?></div>
                 <form method="post" enctype="multipart/form-data">
                   <input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="save_plugin" /><input type="hidden" name="id" value="<?= admin_escape($plugin['id'] ?? '') ?>" /><input type="hidden" name="current_image" value="<?= admin_escape($plugin['image'] ?? '') ?>" />
-                  <div class="field-grid"><label>Nom du plugin<input name="title" required maxlength="100" value="<?= admin_escape($plugin['title'] ?? '') ?>" /></label><label>Libellé<input name="label" maxlength="60" value="<?= admin_escape($plugin['label'] ?? '') ?>" /></label></div>
-                  <label>Présentation<textarea name="summary" maxlength="700" required placeholder="Le besoin auquel répond le plugin et sa valeur pour le serveur."><?= admin_escape($plugin['summary'] ?? '') ?></textarea></label>
-                  <div class="field-grid"><label>Versions compatibles<input name="versions" maxlength="80" placeholder="Paper 1.20.4 - 1.21.4" value="<?= admin_escape($plugin['versions'] ?? '') ?>" /></label><label>Statut<select name="status"><?php foreach (['Privé', 'En production', 'Projet livré', 'Maintenance'] as $status): ?><option value="<?= admin_escape($status) ?>" <?= ($plugin['status'] ?? 'Privé') === $status ? 'selected' : '' ?>><?= admin_escape($status) ?></option><?php endforeach; ?></select></label></div>
-                  <label>Fonctionnalités, une par ligne<textarea name="features" maxlength="700" placeholder="Commandes personnalisées&#10;Interface de gestion&#10;Stockage sécurisé"><?= admin_escape(implode("\n", $plugin['features'] ?? [])) ?></textarea></label>
+                  <div class="field-grid"><label>Nom de la réalisation<input name="title" required maxlength="100" value="<?= admin_escape($plugin['title'] ?? '') ?>" /></label><label>Service<select name="service"><?php foreach (['minecraft' => 'Minecraft', 'garrys-mod' => "Garry's Mod", 'sites-web' => 'Site web', 'graphisme' => 'Graphisme'] as $serviceValue => $serviceLabel): ?><option value="<?= admin_escape($serviceValue) ?>" <?= ($plugin['service'] ?? 'minecraft') === $serviceValue ? 'selected' : '' ?>><?= admin_escape($serviceLabel) ?></option><?php endforeach; ?></select></label></div>
+                  <label>Présentation<textarea name="summary" maxlength="700" required placeholder="Le besoin traité, la solution apportée et la valeur du projet."><?= admin_escape($plugin['summary'] ?? '') ?></textarea></label>
+                  <div class="field-grid"><label>Libellé<input name="label" maxlength="60" value="<?= admin_escape($plugin['label'] ?? '') ?>" /></label><label>Statut<select name="status"><?php foreach (['Privé', 'En production', 'Projet livré', 'Maintenance'] as $status): ?><option value="<?= admin_escape($status) ?>" <?= ($plugin['status'] ?? 'Privé') === $status ? 'selected' : '' ?>><?= admin_escape($status) ?></option><?php endforeach; ?></select></label></div>
+                  <label>Compatibilité ou livrable<input name="versions" maxlength="80" placeholder="Paper 1.21, site vitrine, identité complète..." value="<?= admin_escape($plugin['versions'] ?? '') ?>" /></label>
+                  <label>Points clés, un par ligne<textarea name="features" maxlength="700" placeholder="Fonctionnalité principale&#10;Contrainte résolue&#10;Résultat livré"><?= admin_escape(implode("\n", $plugin['features'] ?? [])) ?></textarea></label>
                   <div class="field-grid"><label>Capture facultative (JPG, PNG ou WebP, 2 Mo max.)<input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp" /></label><label>Description de la capture<input name="alt" maxlength="180" value="<?= admin_escape($plugin['alt'] ?? '') ?>" /></label></div>
                   <label class="check"><input type="checkbox" name="published" <?= !empty($plugin['published']) ? 'checked' : '' ?> /> Publié sur le site</label>
-                  <button class="primary-button" type="submit"><?= $isNew ? 'Ajouter le plugin' : 'Enregistrer' ?></button>
+                  <button class="primary-button" type="submit"><?= $isNew ? 'Ajouter la réalisation' : 'Enregistrer' ?></button>
                 </form>
                 <?php if (!$isNew): ?><form class="delete-form" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="delete_plugin" /><input type="hidden" name="id" value="<?= admin_escape($plugin['id']) ?>" /><button class="danger-button" type="submit">Supprimer</button></form><?php endif; ?>
               </article>
@@ -613,8 +624,8 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
         </section>
 
         <section id="contact" class="admin-section">
-          <div class="section-title"><div><p class="admin-eyebrow">Coordonnées</p><h2>Adresse de contact</h2></div></div>
-          <form class="editor compact-editor" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="save_contact" /><label>E-mail public<input type="email" name="email" required maxlength="160" value="<?= admin_escape($content['contact']['email'] ?? '') ?>" /></label><button class="primary-button" type="submit">Enregistrer</button></form>
+          <div class="section-title"><div><p class="admin-eyebrow">Coordonnées</p><h2>Contacts publics</h2></div></div>
+          <form class="editor compact-editor" method="post"><input type="hidden" name="csrf" value="<?= admin_escape(admin_csrf()) ?>" /><input type="hidden" name="action" value="save_contact" /><label>E-mail public<input type="email" name="email" required maxlength="160" value="<?= admin_escape($content['contact']['email'] ?? '') ?>" /></label><label>Invitation Discord<input type="url" name="discord" required maxlength="220" value="<?= admin_escape($content['contact']['discord'] ?? 'https://discord.gg/F9ZGFUUC9V') ?>" /></label><button class="primary-button" type="submit">Enregistrer</button></form>
         </section>
 
         <section id="compte" class="admin-section">

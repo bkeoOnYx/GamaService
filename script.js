@@ -4,6 +4,8 @@ const menu = document.querySelector("[data-menu]");
 const briefForm = document.querySelector("[data-brief-form]");
 const formStatus = document.querySelector("[data-form-status]");
 const serviceSelect = document.querySelector("#service");
+const projectField = document.querySelector("#project");
+const contactPrefillKey = "gamaservice-contact-prefill";
 
 const closeMenu = () => {
   menu?.classList.remove("open");
@@ -40,10 +42,41 @@ if ("IntersectionObserver" in window) {
   revealElements.forEach((element) => element.classList.add("visible"));
 }
 
-document.querySelectorAll("[data-service-link]").forEach((link) => {
-  link.addEventListener("click", () => {
-    if (serviceSelect) serviceSelect.value = link.dataset.serviceLink || "";
-  });
+const applyContactPrefill = ({ service = "", project = "" } = {}) => {
+  if (serviceSelect && service) serviceSelect.value = service;
+  if (projectField && project && !projectField.value.trim()) projectField.value = project;
+};
+
+try {
+  const storedPrefill = JSON.parse(sessionStorage.getItem(contactPrefillKey) || "null");
+  if (storedPrefill && typeof storedPrefill === "object") applyContactPrefill(storedPrefill);
+  sessionStorage.removeItem(contactPrefillKey);
+} catch {
+  sessionStorage.removeItem(contactPrefillKey);
+}
+
+document.addEventListener("click", (event) => {
+  if (!(event.target instanceof Element)) return;
+  const link = event.target.closest("[data-service-link]");
+  if (!(link instanceof HTMLAnchorElement)) return;
+
+  const prefill = {
+    service: link.dataset.serviceLink || "",
+    project: link.dataset.projectPrefill || "",
+  };
+  applyContactPrefill(prefill);
+  try {
+    const destination = new URL(link.href, window.location.href);
+    const leavesCurrentPage = destination.pathname !== window.location.pathname
+      || destination.search !== window.location.search;
+    if (leavesCurrentPage) {
+      sessionStorage.setItem(contactPrefillKey, JSON.stringify(prefill));
+    } else {
+      sessionStorage.removeItem(contactPrefillKey);
+    }
+  } catch {
+    // The form still works when session storage is unavailable.
+  }
 });
 
 const copyText = async (text) => {
@@ -72,6 +105,7 @@ briefForm?.addEventListener("submit", async (event) => {
     `Service : ${data.get("service") || "À définir"}`,
     `Budget : ${data.get("budget") || "À définir"}`,
     `Échéance : ${data.get("deadline") || "À définir"}`,
+    `Moyen de contact : ${data.get("contact-method") || "Non renseigné"}`,
     "",
     "Mon projet :",
     String(data.get("project") || ""),

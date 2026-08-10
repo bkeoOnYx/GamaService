@@ -94,9 +94,10 @@ function gs_read_content(): array
 {
     $default = gs_default_content();
     $content = gs_read_json_file(gs_content_path(), $default);
+    $contact = is_array($content['contact'] ?? null) ? $content['contact'] : [];
 
     return [
-        'contact' => is_array($content['contact'] ?? null) ? $content['contact'] : $default['contact'],
+        'contact' => array_merge($default['contact'], $contact),
         'plugins' => is_array($content['plugins'] ?? null) ? array_values($content['plugins']) : $default['plugins'],
         'reviews' => is_array($content['reviews'] ?? null) ? array_values($content['reviews']) : [],
     ];
@@ -123,7 +124,10 @@ function gs_public_content(array $content): array
     ));
 
     return [
-        'contact' => ['email' => (string) ($content['contact']['email'] ?? 'support.gamaservice@gmail.com')],
+        'contact' => [
+            'email' => (string) ($content['contact']['email'] ?? 'support.gamaservice@gmail.com'),
+            'discord' => gs_discord_url($content['contact']['discord'] ?? '') ?: 'https://discord.gg/F9ZGFUUC9V',
+        ],
         'plugins' => $plugins,
         'reviews' => $reviews,
     ];
@@ -135,6 +139,23 @@ function gs_text(mixed $value, int $maximum = 500): string
     return function_exists('mb_substr')
         ? mb_substr($text, 0, $maximum)
         : substr($text, 0, $maximum);
+}
+
+function gs_discord_url(mixed $value): string
+{
+    $url = gs_text($value, 220);
+    if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+        return '';
+    }
+
+    $parts = parse_url($url);
+    $host = strtolower((string) ($parts['host'] ?? ''));
+    $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+    if ($scheme !== 'https' || !in_array($host, ['discord.gg', 'discord.com', 'www.discord.com'], true)) {
+        return '';
+    }
+
+    return $url;
 }
 
 function gs_image_path(mixed $value): string

@@ -18,7 +18,7 @@
     <link rel="icon" type="image/png" href="assets/favicon.png" />
     <link rel="preload" href="assets/fonts/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="assets/logo-gamaservice.webp" as="image" type="image/webp" fetchpriority="high" />
-    <link rel="stylesheet" href="styles.css?v=20260810-4" />
+    <link rel="stylesheet" href="styles.css?v=20260810-5" />
     <title>GamaService | Studio gaming, web et graphisme</title>
   </head>
   <body>
@@ -50,7 +50,7 @@
             <p class="hero-lead">Plugins Minecraft sur mesure, configuration de serveurs, création web et identité visuelle : une expertise technique et créative réunie autour de votre projet.</p>
             <div class="hero-actions">
               <a class="button button-primary" href="#contact">Présenter mon projet</a>
-              <a class="button button-secondary" href="/minecraft#plugins">Voir les plugins Minecraft</a>
+              <a class="button button-secondary" href="#portfolio">Voir le portfolio</a>
             </div>
             <ul class="trust-row" aria-label="Engagements GamaService">
               <li>Sur mesure</li><li>Suivi clair</li><li>Livraison documentée</li>
@@ -75,15 +75,16 @@
         </div>
       </section>
 
-      <section class="section band" aria-labelledby="plugins-title">
+      <section id="portfolio" class="section band" aria-labelledby="portfolio-title">
         <div class="container">
           <div class="section-heading reveal">
-            <div><p class="eyebrow">Portfolio Minecraft</p><h2 id="plugins-title">Des plugins conçus pour des <em>besoins réels.</em></h2></div>
-            <p>Chaque fiche présente le rôle et les fonctionnalités du plugin. Les fichiers et le code source restent privés.</p>
+            <div><p class="eyebrow">Sélection de projets</p><h2 id="portfolio-title">Un aperçu de nos <em>réalisations.</em></h2></div>
+            <p>L’accueil présente une sélection courte. Chaque service possède ensuite son portfolio dédié avec davantage de détails.</p>
           </div>
-          <div class="plugin-grid" data-plugin-grid aria-live="polite">
-            <div class="empty-state plugin-empty"><p class="example-kicker">Portfolio en préparation</p><h3>Les premières fiches de plugins arrivent bientôt.</h3><p>Vous pouvez déjà nous présenter le plugin personnalisé dont votre serveur a besoin.</p><a class="button button-secondary" href="mailto:support.gamaservice@gmail.com?subject=Demande%20de%20plugin%20Minecraft%20personnalis%C3%A9">Demander un plugin personnalisé</a></div>
+          <div class="plugin-grid" data-portfolio-grid="all" aria-live="polite">
+            <div class="empty-state plugin-empty"><p class="example-kicker">Portfolio en préparation</p><h3>Les premières réalisations arrivent bientôt.</h3><p>Vous pouvez déjà nous présenter votre projet et son objectif principal.</p><a class="button button-secondary" href="#contact" data-service-link="Projet complet" data-project-prefill="Je souhaite vous présenter un projet.">Présenter un projet</a></div>
           </div>
+          <nav class="portfolio-links" aria-label="Portfolios par service"><a href="/minecraft#portfolio">Minecraft</a><a href="/garrys-mod#portfolio">Garry's Mod</a><a href="/sites-web#portfolio">Sites web</a><a href="/graphisme#portfolio">Graphisme</a></nav>
         </div>
       </section>
 
@@ -105,14 +106,18 @@
             <p class="eyebrow">Contact</p>
             <h2 id="contact-title">Parlons de votre <em>projet.</em></h2>
             <p class="page-lead">Décrivez même une idée encore imparfaite. Nous vous répondrons avec les questions utiles pour la cadrer.</p>
-            <a class="contact-email" href="mailto:support.gamaservice@gmail.com" data-contact-email>support.gamaservice@gmail.com</a>
-            <p class="page-lead">Réponse par e-mail. Aucun compte n'est nécessaire.</p>
+            <div class="contact-links">
+              <a class="contact-email" href="mailto:support.gamaservice@gmail.com" data-contact-email>support.gamaservice@gmail.com</a>
+              <a class="contact-discord" href="https://discord.gg/F9ZGFUUC9V" target="_blank" rel="noopener noreferrer" data-contact-discord>Rejoindre le Discord</a>
+            </div>
+            <p class="page-lead">Réponse par e-mail ou Discord. Aucun compte n'est nécessaire pour préparer votre demande.</p>
           </div>
           <form class="brief-form reveal" data-brief-form>
             <div class="form-grid">
               <div class="field-group"><label for="service">Service</label><select id="service" name="service" required><option value="">Choisir</option><option>Minecraft</option><option>Garry's Mod</option><option>Site web</option><option>Graphisme</option><option>Projet complet</option></select></div>
               <div class="field-group"><label for="budget">Budget indicatif</label><select id="budget" name="budget" required><option value="">Choisir</option><option>Moins de 500 €</option><option>500 € à 1 500 €</option><option>1 500 € à 5 000 €</option><option>Plus de 5 000 €</option><option>À définir</option></select></div>
               <div class="field-group"><label for="deadline">Échéance</label><select id="deadline" name="deadline" required><option value="">Choisir</option><option>Dès que possible</option><option>Dans 1 à 2 mois</option><option>Dans 3 mois ou plus</option><option>À définir</option></select></div>
+              <div class="field-group"><label for="contact-method">Moyen de contact (facultatif)</label><input id="contact-method" name="contact-method" type="text" maxlength="160" placeholder="E-mail, pseudo Discord ou téléphone" /></div>
             </div>
             <div class="field-group"><label for="project">Votre idée</label><textarea id="project" name="project" required minlength="20" placeholder="Objectif, fonctionnalités, univers, contraintes..."></textarea></div>
             <button class="button button-primary form-submit" type="submit">Préparer mon e-mail</button>
@@ -124,11 +129,11 @@
 
     <footer class="site-footer" itemscope itemtype="https://schema.org/ProfessionalService">
       <div class="container">
-        <div class="footer-main"><div class="footer-brand"><a class="brand" href="/" itemprop="url"><img src="assets/logo-gamaservice.webp" alt="" width="38" height="38" /><span itemprop="name">Gama<span>Service</span></span></a><p>Studio français spécialisé dans les projets gaming, web et visuels sur mesure.</p></div><nav class="footer-links" aria-label="Navigation de pied de page"><a href="/minecraft">Minecraft</a><a href="/garrys-mod">Garry's Mod</a><a href="/sites-web">Sites web</a><a href="/graphisme">Graphisme</a><a href="/avis">Avis clients</a><a href="mailto:support.gamaservice@gmail.com" itemprop="email" data-contact-email>support.gamaservice@gmail.com</a></nav></div>
+        <div class="footer-main"><div class="footer-brand"><a class="brand" href="/" itemprop="url"><img src="assets/logo-gamaservice.webp" alt="" width="38" height="38" /><span itemprop="name">Gama<span>Service</span></span></a><p>Studio français spécialisé dans les projets gaming, web et visuels sur mesure.</p></div><nav class="footer-links" aria-label="Navigation de pied de page"><a href="/minecraft">Minecraft</a><a href="/garrys-mod">Garry's Mod</a><a href="/sites-web">Sites web</a><a href="/graphisme">Graphisme</a><a href="/avis">Avis clients</a><a href="mailto:support.gamaservice@gmail.com" itemprop="email" data-contact-email>support.gamaservice@gmail.com</a><a href="https://discord.gg/F9ZGFUUC9V" target="_blank" rel="noopener noreferrer" data-contact-discord>Discord</a></nav></div>
         <div class="footer-bottom"><span>© <span data-year></span> GamaService</span><span>France · Prestations à distance</span></div>
       </div>
     </footer>
-    <script src="script.js?v=20260810-4" defer></script>
-    <script src="content.js?v=20260810-4" defer></script>
+    <script src="script.js?v=20260810-5" defer></script>
+    <script src="content.js?v=20260810-5" defer></script>
   </body>
 </html>

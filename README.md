@@ -5,9 +5,10 @@ Site vitrine de [gamaservice.fr](https://gamaservice.fr/), déployé sur un héb
 ## Pages publiques
 
 - Minecraft, Garry's Mod, sites web et graphisme
-- Portfolio de plugins Minecraft administrable, sans téléchargement public
+- Portfolios administrables pour Minecraft, Garry's Mod, sites web et graphisme
+- Sélection générale limitée à trois réalisations sur l'accueil
 - Avis clients administrables
-- Formulaire de brief ouvrant la messagerie du visiteur
+- Contact par e-mail ou Discord et formulaire de brief avec moyen de réponse facultatif
 
 ## Administration
 
