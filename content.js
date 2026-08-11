@@ -80,7 +80,7 @@ const loadContent = async () => {
 };
 
 const configureContactLink = (link, service, project) => {
-  link.href = "/#contact";
+  link.href = "/contact";
   link.dataset.serviceLink = service;
   link.dataset.projectPrefill = project;
 };
