@@ -79,53 +79,49 @@ document.addEventListener("click", (event) => {
   }
 });
 
-const copyText = async (text) => {
-  if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-
-  const textArea = document.createElement("textarea");
-  textArea.value = text;
-  textArea.className = "clipboard-fallback";
-  textArea.setAttribute("aria-hidden", "true");
-  textArea.tabIndex = -1;
-  document.body.appendChild(textArea);
-  textArea.select();
-  document.execCommand("copy");
-  textArea.remove();
-};
-
 briefForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const data = new FormData(briefForm);
-  const brief = [
-    "Bonjour GamaService,",
-    "",
-    `Service : ${data.get("service") || "À définir"}`,
-    `Budget : ${data.get("budget") || "À définir"}`,
-    `Échéance : ${data.get("deadline") || "À définir"}`,
-    `Moyen de contact : ${data.get("contact-method") || "Non renseigné"}`,
-    "",
-    "Mon projet :",
-    String(data.get("project") || ""),
-  ].join("\n");
+  const submitButton = briefForm.querySelector("[type='submit']");
+  if (!(submitButton instanceof HTMLButtonElement) || submitButton.disabled) return;
+
+  const initialLabel = submitButton.textContent;
+  submitButton.disabled = true;
+  submitButton.setAttribute("aria-busy", "true");
+  submitButton.textContent = "Envoi en cours...";
+  formStatus?.classList.remove("success", "error");
+  if (formStatus) formStatus.textContent = "Envoi sécurisé de votre demande...";
 
   try {
-    await copyText(brief);
-    const address = document.querySelector("[data-contact-email]")?.textContent?.trim()
-      || "support.gamaservice@gmail.com";
-    const subject = encodeURIComponent(`Demande de projet - ${data.get("service") || "GamaService"}`);
-    window.location.href = `mailto:${address}?subject=${subject}&body=${encodeURIComponent(brief)}`;
+    const response = await fetch(briefForm.action, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: new FormData(briefForm),
+      credentials: "same-origin",
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.message || "L’envoi a échoué. Réessayez dans quelques minutes.");
+    }
+
+    briefForm.reset();
     if (formStatus) {
-      formStatus.textContent = "Votre messagerie va s’ouvrir. Le brief a aussi été copié.";
+      formStatus.textContent = payload.message || "Votre demande a bien été envoyée.";
       formStatus.classList.add("success");
     }
-  } catch {
+  } catch (error) {
     if (formStatus) {
-      formStatus.textContent = "Votre messagerie va s’ouvrir avec le brief préparé.";
-      formStatus.classList.remove("success");
+      formStatus.textContent = error instanceof Error
+        ? error.message
+        : "L’envoi a échoué. Réessayez dans quelques minutes.";
+      formStatus.classList.add("error");
     }
+  } finally {
+    submitButton.disabled = false;
+    submitButton.removeAttribute("aria-busy");
+    submitButton.textContent = initialLabel;
   }
 });
 

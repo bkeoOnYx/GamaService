@@ -803,6 +803,20 @@ em {
   width: 100%;
 }
 
+.form-submit:disabled {
+  transform: none;
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.form-trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .form-note {
   margin: 12px 0 0;
   color: var(--dim);
@@ -812,6 +826,10 @@ em {
 
 .form-note.success {
   color: var(--green);
+}
+
+.form-note.error {
+  color: #ff9b9b;
 }
 
 .form-note a,
@@ -825,14 +843,6 @@ em {
 .form-note a:hover,
 .legal-content a:hover {
   color: #fff;
-}
-
-.clipboard-fallback {
-  position: fixed;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
 }
 
 .cta-band {
