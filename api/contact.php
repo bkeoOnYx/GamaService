@@ -118,12 +118,16 @@ $allowedDeadlines = ['Dès que possible', 'Dans 1 à 2 mois', 'Dans 3 mois ou pl
 $service = contact_single_line($_POST['service'] ?? '', 60);
 $budget = contact_single_line($_POST['budget'] ?? '', 60);
 $deadline = contact_single_line($_POST['deadline'] ?? '', 60);
-$contactMethod = contact_single_line($_POST['contact-method'] ?? '', 160);
+$contactEmailInput = contact_single_line($_POST['contact-email'] ?? '', 160);
+$contactDiscord = contact_single_line($_POST['contact-discord'] ?? '', 100);
+$contactPhone = contact_single_line($_POST['contact-phone'] ?? '', 40);
 $project = contact_message_text($_POST['project'] ?? '', 3000);
+$contactEmail = filter_var($contactEmailInput, FILTER_VALIDATE_EMAIL);
 
 if (!in_array($service, $allowedServices, true)
     || !in_array($budget, $allowedBudgets, true)
     || !in_array($deadline, $allowedDeadlines, true)
+    || $contactEmail === false
     || contact_length($project) < 20
 ) {
     contact_respond(422, 'Vérifiez les champs du formulaire avant de réessayer.');
@@ -150,7 +154,9 @@ $message = "Une nouvelle demande a été envoyée depuis gamaservice.fr.\n\n"
     . "Service : {$service}\n"
     . "Budget : {$budget}\n"
     . "Échéance : {$deadline}\n"
-    . 'Moyen de contact : ' . ($contactMethod !== '' ? $contactMethod : 'Non renseigné') . "\n\n"
+    . "Adresse e-mail : {$contactEmail}\n"
+    . 'Discord : ' . ($contactDiscord !== '' ? $contactDiscord : 'Non renseigné') . "\n"
+    . 'Téléphone : ' . ($contactPhone !== '' ? $contactPhone : 'Non renseigné') . "\n\n"
     . "Projet :\n{$project}\n";
 
 $headers = [
@@ -159,11 +165,7 @@ $headers = [
     'X-Mailer: PHP/' . PHP_VERSION,
 ];
 
-if (filter_var($contactMethod, FILTER_VALIDATE_EMAIL) !== false) {
-    $headers[] = 'Reply-To: ' . $contactMethod;
-} else {
-    $headers[] = 'Reply-To: ' . GS_CONTACT_EMAIL;
-}
+$headers[] = 'Reply-To: ' . $contactEmail;
 
 if (!@mail(GS_CONTACT_EMAIL, $subject, $message, implode("\r\n", $headers))) {
     error_log('GamaService contact form: mail() failed.');
