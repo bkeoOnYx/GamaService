@@ -43,6 +43,26 @@ if ("IntersectionObserver" in window) {
   revealElements.forEach((element) => element.classList.add("visible"));
 }
 
+const scrollToCleanTarget = (targetId, behavior = "smooth") => {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  target.scrollIntoView({ behavior, block: "start" });
+  if (window.location.hash) {
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+  }
+};
+
+document.querySelectorAll("[data-scroll-target]").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    scrollToCleanTarget(link.dataset.scrollTarget || "");
+  });
+});
+
+if (window.location.hash === "#vitrine") {
+  requestAnimationFrame(() => scrollToCleanTarget("vitrine", "auto"));
+}
+
 const closeCustomSelects = (except = null) => {
   customSelectControllers.forEach((controller) => {
     if (controller !== except) controller.close();
