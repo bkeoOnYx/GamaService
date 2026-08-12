@@ -158,6 +158,17 @@ function gs_discord_url(mixed $value): string
     return $url;
 }
 
+function gs_external_url(mixed $value): string
+{
+    $url = gs_text($value, 220);
+    if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+        return '';
+    }
+
+    $parts = parse_url($url);
+    return strtolower((string) ($parts['scheme'] ?? '')) === 'https' ? $url : '';
+}
+
 function gs_image_path(mixed $value): string
 {
     $path = gs_text($value, 220);

@@ -14,35 +14,35 @@ const portfolioServices = {
 
 const emptyPortfolioContent = {
   all: {
-    kicker: "Portfolio en préparation",
+    kicker: "Vitrine en préparation",
     title: "Les premières réalisations arrivent bientôt.",
     text: "Présentez-nous déjà votre projet : nous vous répondrons avec les premières pistes utiles.",
     button: "Présenter un projet",
     service: "Projet complet",
   },
   minecraft: {
-    kicker: "Portfolio en préparation",
+    kicker: "Vitrine en préparation",
     title: "Les premières fiches de plugins arrivent bientôt.",
     text: "Vous pouvez déjà nous présenter le plugin personnalisé dont votre serveur a besoin.",
     button: "Demander un plugin personnalisé",
     service: "Minecraft",
   },
   "garrys-mod": {
-    kicker: "Portfolio en préparation",
+    kicker: "Vitrine en préparation",
     title: "Les premiers projets Garry's Mod arrivent bientôt.",
     text: "Présentez-nous votre serveur, son gamemode et les systèmes que vous souhaitez mettre en place.",
     button: "Présenter un serveur",
     service: "Garry's Mod",
   },
   "sites-web": {
-    kicker: "Portfolio en préparation",
+    kicker: "Vitrine en préparation",
     title: "Les premiers sites réalisés arrivent bientôt.",
     text: "Nous pouvons déjà cadrer votre futur site, ses contenus et son objectif principal.",
     button: "Présenter un site",
     service: "Site web",
   },
   graphisme: {
-    kicker: "Portfolio en préparation",
+    kicker: "Vitrine en préparation",
     title: "Les premières identités visuelles arrivent bientôt.",
     text: "Parlez-nous de votre univers pour préparer une identité graphique qui lui ressemble.",
     button: "Présenter une identité",
@@ -61,6 +61,15 @@ const safeDiscordUrl = (value) => {
     const url = new URL(String(value));
     const allowedHosts = ["discord.gg", "discord.com", "www.discord.com"];
     return url.protocol === "https:" && allowedHosts.includes(url.hostname.toLowerCase()) ? url.href : "";
+  } catch {
+    return "";
+  }
+};
+
+const safeProjectUrl = (value) => {
+  try {
+    const url = new URL(String(value));
+    return url.protocol === "https:" ? url.href : "";
   } catch {
     return "";
   }
@@ -157,13 +166,25 @@ const renderPortfolio = (items) => {
       const footer = document.createElement("div");
       footer.className = "plugin-footer";
       footer.appendChild(textElement("span", "plugin-version", item.versions || "Détails sur demande"));
+      const actions = document.createElement("div");
+      actions.className = "plugin-actions";
+      const projectUrl = safeProjectUrl(item.url);
+      if (projectUrl) {
+        const project = textElement("a", "plugin-project-link", "Voir le site");
+        project.href = projectUrl;
+        project.target = "_blank";
+        project.rel = "noopener noreferrer";
+        project.setAttribute("aria-label", `Voir le site ${item.title || service.label} dans un nouvel onglet`);
+        actions.appendChild(project);
+      }
       const contact = textElement("a", "plugin-contact", "Demander un projet similaire");
       configureContactLink(
         contact,
         service.formValue,
         `Je souhaite discuter d'un projet similaire à « ${item.title || service.label} ».\n\nMon besoin : `,
       );
-      footer.appendChild(contact);
+      actions.appendChild(contact);
+      footer.appendChild(actions);
       body.appendChild(footer);
       article.appendChild(body);
       grid.appendChild(article);

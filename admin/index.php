@@ -424,7 +424,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $index = $id === '' ? null : admin_find_index($content['plugins'], $id);
             $service = gs_text($_POST['service'] ?? 'minecraft', 40);
             if (!in_array($service, ['minecraft', 'garrys-mod', 'sites-web', 'graphisme'], true)) {
-                throw new RuntimeException('La catégorie du portfolio est invalide.');
+                throw new RuntimeException('La catégorie de la vitrine est invalide.');
             }
             $uploadedImage = admin_upload_image('image_upload');
             $currentImage = gs_image_path($_POST['current_image'] ?? '');
@@ -432,11 +432,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $title = gs_text($_POST['title'] ?? '', 100);
             $summary = gs_text($_POST['summary'] ?? '', 700);
             $alt = gs_text($_POST['alt'] ?? '', 180);
+            $urlInput = gs_text($_POST['url'] ?? '', 220);
+            $url = gs_external_url($urlInput);
             if ($title === '' || $summary === '') {
                 throw new RuntimeException('Le nom et la présentation de la réalisation sont obligatoires.');
             }
             if ($image !== '' && $alt === '') {
                 throw new RuntimeException('Décrivez la capture pour l’accessibilité et le référencement.');
+            }
+            if ($urlInput !== '' && $url === '') {
+                throw new RuntimeException('L’adresse du projet doit être une URL HTTPS valide.');
             }
             $plugin = [
                 'id' => $id !== '' ? $id : gs_new_id('portfolio'),
@@ -449,6 +454,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'features' => admin_parse_features((string) ($_POST['features'] ?? '')),
                 'image' => $image,
                 'alt' => $alt,
+                'url' => $url,
                 'published' => isset($_POST['published']),
             ];
             if ($index === null) {
@@ -457,7 +463,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $content['plugins'][$index] = $plugin;
             }
             gs_write_content($content);
-            admin_flash('success', 'Réalisation enregistrée dans le portfolio.');
+            admin_flash('success', 'Réalisation enregistrée dans la vitrine.');
             admin_redirect('#plugins');
         }
 
@@ -521,7 +527,7 @@ $passwordConfigured = admin_password_configured();
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 $content = $authenticated ? gs_read_content() : null;
-$blankPlugin = ['id' => '', 'service' => 'minecraft', 'label' => 'Projet réalisé', 'title' => '', 'summary' => '', 'versions' => '', 'status' => 'Privé', 'features' => [], 'image' => '', 'alt' => '', 'published' => true];
+$blankPlugin = ['id' => '', 'service' => 'minecraft', 'label' => 'Projet réalisé', 'title' => '', 'summary' => '', 'versions' => '', 'status' => 'Privé', 'features' => [], 'image' => '', 'alt' => '', 'url' => '', 'published' => true];
 $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'rating' => 5, 'published' => true];
 ?>
 <!doctype html>
@@ -577,11 +583,11 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
       <?php else: ?>
         <section class="dashboard-intro">
           <div><p class="admin-eyebrow">Contenu du site</p><h1>Tableau de bord</h1><p>Les modifications publiées sont visibles immédiatement sur le site.</p></div>
-          <nav class="admin-tabs" aria-label="Sections"><a href="#plugins">Portfolio</a><a href="#avis">Avis</a><a href="#contact">Contact</a><a href="#compte">Compte</a></nav>
+          <nav class="admin-tabs" aria-label="Sections"><a href="#plugins">Vitrine</a><a href="#avis">Avis</a><a href="#contact">Contact</a><a href="#compte">Compte</a></nav>
         </section>
 
         <section id="plugins" class="admin-section">
-          <div class="section-title"><div><p class="admin-eyebrow">Tous les services</p><h2>Réalisations du portfolio</h2><p>Classez chaque réalisation par service. L’accueil montre seulement trois éléments, tandis que chaque page affiche sa sélection complète.</p></div><span><?= count($content['plugins']) ?> élément(s)</span></div>
+          <div class="section-title"><div><p class="admin-eyebrow">Tous les services</p><h2>Réalisations de la vitrine</h2><p>Classez chaque réalisation par service. L’accueil montre seulement trois éléments, tandis que chaque page affiche sa sélection complète.</p></div><span><?= count($content['plugins']) ?> élément(s)</span></div>
           <div class="editor-list">
             <?php foreach (array_merge($content['plugins'], [$blankPlugin]) as $plugin): ?>
               <?php $isNew = ($plugin['id'] ?? '') === ''; $imagePath = gs_image_path($plugin['image'] ?? ''); ?>
@@ -593,6 +599,7 @@ $blankReview = ['id' => '', 'name' => '', 'project' => '', 'quote' => '', 'ratin
                   <label>Présentation<textarea name="summary" maxlength="700" required placeholder="Le besoin traité, la solution apportée et la valeur du projet."><?= admin_escape($plugin['summary'] ?? '') ?></textarea></label>
                   <div class="field-grid"><label>Libellé<input name="label" maxlength="60" value="<?= admin_escape($plugin['label'] ?? '') ?>" /></label><label>Statut<select name="status"><?php foreach (['Privé', 'En production', 'Projet livré', 'Maintenance'] as $status): ?><option value="<?= admin_escape($status) ?>" <?= ($plugin['status'] ?? 'Privé') === $status ? 'selected' : '' ?>><?= admin_escape($status) ?></option><?php endforeach; ?></select></label></div>
                   <label>Compatibilité ou livrable<input name="versions" maxlength="80" placeholder="Paper 1.21, site vitrine, identité complète..." value="<?= admin_escape($plugin['versions'] ?? '') ?>" /></label>
+                  <label>Adresse du projet (HTTPS)<input type="url" name="url" maxlength="220" placeholder="https://exemple.fr/" value="<?= admin_escape($plugin['url'] ?? '') ?>" /></label>
                   <label>Points clés, un par ligne<textarea name="features" maxlength="700" placeholder="Fonctionnalité principale&#10;Contrainte résolue&#10;Résultat livré"><?= admin_escape(implode("\n", $plugin['features'] ?? [])) ?></textarea></label>
                   <div class="field-grid"><label>Capture facultative (JPG, PNG ou WebP, 2 Mo max.)<input type="file" name="image_upload" accept="image/jpeg,image/png,image/webp" /></label><label>Description de la capture<input name="alt" maxlength="180" value="<?= admin_escape($plugin['alt'] ?? '') ?>" /></label></div>
                   <label class="check"><input type="checkbox" name="published" <?= !empty($plugin['published']) ? 'checked' : '' ?> /> Publié sur le site</label>

@@ -3,6 +3,26 @@
     "email": "support.gamaservice@gmail.com",
     "discord": "https://discord.gg/F9ZGFUUC9V"
   },
-  "plugins": [],
+  "plugins": [
+    {
+      "id": "portfolio-ms-conseil",
+      "service": "sites-web",
+      "label": "Site immobilier",
+      "title": "MS Conseil",
+      "summary": "Site web consacré à la cession et à la reprise de fonds de commerce dans l'Eure, avec une présentation claire de l'expertise, des annonces et du parcours de contact.",
+      "versions": "Site web en production",
+      "status": "En production",
+      "features": [
+        "Présentation des services et de l'expertise",
+        "Catalogue d'annonces immobilières",
+        "Pages honoraires et contact",
+        "Navigation adaptée au mobile et à l'ordinateur"
+      ],
+      "image": "assets/portfolio-msconseil.webp",
+      "alt": "Page d'accueil du site MS Conseil consacré à la cession et à la reprise de commerces",
+      "url": "https://msconseil.immo/",
+      "published": true
+    }
+  ],
   "reviews": []
 }
